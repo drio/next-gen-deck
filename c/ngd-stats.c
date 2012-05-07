@@ -100,11 +100,15 @@ bam_stats_t *bam_stats_t_init()
   stats->num_single_end_reads_pcr_dup = 0;
   for(i=0;i<256;i++)
     stats->num_at_quality_score[i]=0;
+  for(i=-1;i<MAX_INSERT_SIZE;i++)
+    stats->num_at_insert_size[i]=0;
   return stats;
 }
 
 void bam_stats_t_add(bam_stats_t *stats, bam1_t *b)
 {
+  int64_t absolute_is;
+
   if(b->core.flag & BAM_FPAIRED) { // paired end
     if(b->core.flag & BAM_FREAD1) { // first read
       stats->num_raw_paired_reads++;
@@ -112,6 +116,13 @@ void bam_stats_t_add(bam_stats_t *stats, bam1_t *b)
         // both ends mapped
         stats->num_paired_reads++;
         if(b->core.flag & BAM_FDUP) stats->num_paired_reads_pcr_dup++;
+        else { // No duplicate, first read, both ends map
+          absolute_is = b->core.isize < 0 ? b->core.isize * -1 : b->core.isize;
+          if (absolute_is < MAX_INSERT_SIZE)
+            stats->num_at_insert_size[absolute_is]++;
+          else // Aberrant insert size
+            stats->num_at_insert_size[-1]++;
+        }
       }
       else if(!(b->core.flag & BAM_FUNMAP) && (b->core.flag & BAM_FMUNMAP)) {
         // this end mapped, mate unmapped
@@ -183,6 +194,22 @@ void bam_stats_t_print(bam_stats_t *stats, char *seed)
   fprintf(fp, "amount,mapping_quality\n");
   for(i=0;i<256;i++)
     fprintf(fp, "%lld,%d\n", (long long int)stats->num_at_quality_score[i], i);
+  fclose(fp);
+
+  /* Now, insert size distribution stats */
+  char fn_is[100] = {0};
+
+  /* Insert size distro data  */
+  strcpy(fn_is, seed);
+  strcat(fn_is, ".isize.dist.csv");
+  if ((fp = fopen(fn_is, "w")) == NULL) {
+    fprintf(stderr, "Problems writing to file %s.", fn_is);
+    exit(1);
+  }
+
+  fprintf(fp, "amount,insert_size\n");
+  for(i=-1;i<MAX_INSERT_SIZE;i++)
+    fprintf(fp, "%lld,%d\n", (long long int)stats->num_at_insert_size[i], i);
 
   fclose(fp);
 }
