@@ -17,7 +17,7 @@ typedef struct {
 
 bam_stats_t *bam_stats_t_init();
 void bam_stats_t_add(bam_stats_t*, bam1_t*);
-void bam_stats_t_print(bam_stats_t*, FILE*);
+void bam_stats_t_print(bam_stats_t*, char*);
 void bam_stats_t_destroy(bam_stats_t*);
 
 #endif

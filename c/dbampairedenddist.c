@@ -6,20 +6,20 @@
 #include <pthread.h>
 #include <zlib.h>
 
-#include "../bfast/bfast/BError.h"
-#include "../samtools/bam.h"
-#include "../samtools/sam.h"
+#include "BError.h"
+#include "bam.h"
+#include "sam.h"
 #include "dbampairedenddist.h"
 
 #define Name "dbampairedenddist"
 #define ROTATE_NUM 100000
 
 /* Prints the distribution of the distance between paired-end reads
- * using reads that have both ends matching only one location on 
+ * using reads that have both ends matching only one location on
  * the same strand.
  * */
 
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
 	samfile_t *fp_in = NULL;
 	int32_t i;
@@ -132,7 +132,7 @@ int BinsInsert(Bins *b,
 
 	if(b->minDistance <= difference &&
 			difference <= b->maxDistance) {
-		index = (difference - b->minDistance); 
+		index = (difference - b->minDistance);
 		index -= (difference % b->binSize);
 		index /= b->binSize;
 		assert(0 <= index &&

@@ -2,9 +2,9 @@
 #define DBAMPAIREDENDDIST_H_
 
 #include <zlib.h>
-#include "../bfast/bfast/RGIndex.h"
-#include "../bfast/bfast/RGBinary.h"
-#include "../bfast/bfast/RGMatch.h"
+#include "RGIndex.h"
+#include "RGBinary.h"
+#include "RGMatch.h"
 
 typedef struct {
 	int minDistance;

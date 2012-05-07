@@ -9,7 +9,7 @@ OBJS=ngd-stats.o BError.o
 .c.o:
 	$(CC) -c $(CFLAGS) $(DFLAGS) $(INCLUDES) $< -o $@
 
-all: ngd-stats
+all: ngd-stats pend
 
 BError.o: BError.h
 
