@@ -16,7 +16,8 @@ typedef struct {
   long long n_dup[2];
   long long n_diffchr[2], n_diffhigh[2];
   long long is_dist[MAX_ISIZE_VALUE];
-  long long mapq_dist[MAX_MAPPING_QUAL];
+  long long mapq_dist_r1[MAX_MAPPING_QUAL];
+  long long mapq_dist_r2[MAX_MAPPING_QUAL];
 } bam_flagstat_t;
 
 inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
@@ -48,7 +49,10 @@ inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
   }
   if (!((c)->flag & BAM_FUNMAP)) {
     ++(s)->n_mapped[w];
-    ++(s)->mapq_dist[c->qual];
+    if ((c)->flag & BAM_FREAD1)
+      ++(s)->mapq_dist_r1[c->qual];
+    else
+      ++(s)->mapq_dist_r2[c->qual];
   }
   if ((c)->flag & BAM_FDUP) ++(s)->n_dup[w];
 }
@@ -114,15 +118,94 @@ void dump_is(bam_flagstat_t *s, char *seed)
   fclose(fp);
 }
 
-void dump_mapq(bam_flagstat_t *s, char *seed) {
-  FILE *fp;
+void dump_mapq(bam_flagstat_t *s, char *seed)
+{
+  FILE *fp_r1, *fp_r2;
   char fname[100];
   int i;
 
-  open_for_output(&fp, fname, seed, ".mapq.dist.csv");
-  fprintf(fp, "mapq,amount\n"); // header
-  for (i=0; i<MAX_MAPPING_QUAL; ++i)
-    fprintf(fp, "%d,%lld\n", i, s->mapq_dist[i]);
+  open_for_output(&fp_r1, fname, seed, ".r1.mapq.dist.csv");
+  open_for_output(&fp_r2, fname, seed, ".r2.mapq.dist.csv");
+  fprintf(fp_r1, "mapq,amount\n"); // header
+  fprintf(fp_r2, "mapq,amount\n"); // header
+  for (i=0; i<MAX_MAPPING_QUAL; ++i) {
+    fprintf(fp_r1, "%d,%lld\n", i, s->mapq_dist_r1[i]);
+    fprintf(fp_r2, "%d,%lld\n", i, s->mapq_dist_r2[i]);
+  }
+  fclose(fp_r1);
+  fclose(fp_r2);
+}
+
+/*
+ * When called, things look like:
+ *      p
+ *      |
+ * @RG\tID:0\tPL:Illumina\n
+ *
+ * rt    : type of record RG or PG
+ * t     : header text
+ * p     : pointer in t
+ * t_text: csv version of the records (and its tags) we are interested on
+ * i     : index in t_text
+ *
+ * returns: updated pointer to the header text
+ *
+ * Other RG/PG examples:
+ * @RG     ID:0    PL:Illumina     PU:700821_20111116_D0GN3ACXX-5-ID09     LB:IWX_RMMYJR.18277-1_1pA       DT:2011-12-14T14:55:08-0600     SM:18277        CN:BCM
+ * @PG     ID:bwa  PN:bwa  VN:0.5.9-r16*
+ */
+int header_records(char *rt, char *t, int p, char *t_text, int *i)
+{
+  int j;
+
+  while (t[p] != '\n') { // while still on line
+    // add the record type one each csv entry
+    t_text[*i] = rt[0]; t_text[(*i)+1] = rt[1]; t_text[(*i)+2] = ','; *i = (*i)+3;
+
+    for (j=0; j<2; ++j, ++p, ++(*i)) { // get the tag_name
+      t_text[*i] = t[p];
+    }
+
+    ++p; // skip ':' in header text and put the separator
+    t_text[*i] = ','; (*i)++;
+
+    while (t[p] != '\t' && t[p] != '\n') { // get the tag value
+      t_text[*i] = t[p];
+      ++p;
+      ++(*i);
+    }
+
+    t_text[*i] = ',' ; (*i)++;
+    t_text[*i] = '\n'; (*i)++;
+    if (t[p] == '\t') ++p;
+  }
+
+  return p;
+}
+
+void dump_header_data(char *text, int nc, char *seed)
+{
+  FILE *fp;
+  char fname[100];
+  int p, i, j; // pointer in text, index in s_tag, index in t_text;
+  char s_tag[4];
+  char t_text[10000] = {0}; // text of one tag
+
+  open_for_output(&fp, fname, seed, ".header.csv");
+  fprintf(fp, "key,value\n"); // header
+
+  p = 0; s_tag[3] = '\0';
+  i = j = 0;
+  while (p < nc) {
+    for (i=0; i<3; ++i) s_tag[i] = text[p+i];
+    if (strcmp(s_tag, "@RG") == 0) p = header_records("RG", text, p+4, t_text, &j);
+    if (strcmp(s_tag, "@PG") == 0) p = header_records("PG", text, p+4, t_text, &j);
+    ++p;
+  }
+  printf("-------------\n");
+  printf("%s", t_text);
+  printf("-------------\n");
+
   fclose(fp);
 }
 
@@ -147,6 +230,7 @@ int main(int argc, char *argv[])
   dump_stats(s, seed_name);
   dump_is(s, seed_name);
   dump_mapq(s, seed_name);
+  dump_header_data(header->text, header->l_text, seed_name);
 
   free(s);
   bam_header_destroy(header);
