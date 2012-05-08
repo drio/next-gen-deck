@@ -8,6 +8,7 @@
 
 #define PRG_NAME "ngd-stats"
 #define MAX_ISIZE_VALUE 100000
+#define MAX_MAPPING_QUAL 255
 
 typedef struct {
   long long n_reads[2], n_mapped[2], n_pair_all[2], n_pair_map[2], n_pair_good[2];
@@ -15,6 +16,7 @@ typedef struct {
   long long n_dup[2];
   long long n_diffchr[2], n_diffhigh[2];
   long long is_dist[MAX_ISIZE_VALUE];
+  long long mapq_dist[MAX_MAPPING_QUAL];
 } bam_flagstat_t;
 
 inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
@@ -46,6 +48,7 @@ inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
   }
   if (!((c)->flag & BAM_FUNMAP)) {
     ++(s)->n_mapped[w];
+    ++(s)->mapq_dist[c->qual];
   }
   if ((c)->flag & BAM_FDUP) ++(s)->n_dup[w];
 }
@@ -111,6 +114,18 @@ void dump_is(bam_flagstat_t *s, char *seed)
   fclose(fp);
 }
 
+void dump_mapq(bam_flagstat_t *s, char *seed) {
+  FILE *fp;
+  char fname[100];
+  int i;
+
+  open_for_output(&fp, fname, seed, ".mapq.dist.csv");
+  fprintf(fp, "mapq,amount\n"); // header
+  for (i=0; i<MAX_MAPPING_QUAL; ++i)
+    fprintf(fp, "%d,%lld\n", i, s->mapq_dist[i]);
+  fclose(fp);
+}
+
 int main(int argc, char *argv[])
 {
   bamFile fp;
@@ -131,6 +146,7 @@ int main(int argc, char *argv[])
   s = bam_flagstat_core(fp);
   dump_stats(s, seed_name);
   dump_is(s, seed_name);
+  dump_mapq(s, seed_name);
 
   free(s);
   bam_header_destroy(header);
