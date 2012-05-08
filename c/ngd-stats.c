@@ -7,34 +7,38 @@
 #include "bam.h"
 
 #define PRG_NAME "ngd-stats"
+#define MAX_ISIZE_VALUE 10000
 
 typedef struct {
   long long n_reads[2], n_mapped[2], n_pair_all[2], n_pair_map[2], n_pair_good[2];
   long long n_sgltn[2], n_read1[2], n_read2[2];
   long long n_dup[2];
   long long n_diffchr[2], n_diffhigh[2];
+  long long is_dist[MAX_ISIZE_VALUE];
 } bam_flagstat_t;
 
-#define flagstat_loop(s, c) do {                    \
-    int w = ((c)->flag & BAM_FQCFAIL) ? 1 : 0;           \
-    ++(s)->n_reads[w];                        \
-    if ((c)->flag & BAM_FPAIRED) {                  \
-      ++(s)->n_pair_all[w];                   \
-      if ((c)->flag & BAM_FPROPER_PAIR) ++(s)->n_pair_good[w];  \
-      if ((c)->flag & BAM_FREAD1) ++(s)->n_read1[w];        \
-      if ((c)->flag & BAM_FREAD2) ++(s)->n_read2[w];        \
-      if (((c)->flag & BAM_FMUNMAP) && !((c)->flag & BAM_FUNMAP)) ++(s)->n_sgltn[w];  \
-      if (!((c)->flag & BAM_FUNMAP) && !((c)->flag & BAM_FMUNMAP)) { \
-        ++(s)->n_pair_map[w];                 \
-        if ((c)->mtid != (c)->tid) {              \
-          ++(s)->n_diffchr[w];                \
-          if ((c)->qual >= 5) ++(s)->n_diffhigh[w];     \
-        }                           \
-      }                             \
-    }                               \
-    if (!((c)->flag & BAM_FUNMAP)) ++(s)->n_mapped[w];        \
-    if ((c)->flag & BAM_FDUP) ++(s)->n_dup[w];            \
-  } while (0)
+inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
+{
+  int w = (c->flag & BAM_FQCFAIL) ? 1 : 0;
+  ++(s)->n_reads[w];
+
+  if ((c)->flag & BAM_FPAIRED) {
+    ++(s)->n_pair_all[w];
+    if ((c)->flag & BAM_FPROPER_PAIR) ++(s)->n_pair_good[w];
+    if ((c)->flag & BAM_FREAD1) ++(s)->n_read1[w];
+    if ((c)->flag & BAM_FREAD2) ++(s)->n_read2[w];
+    if (((c)->flag & BAM_FMUNMAP) && !((c)->flag & BAM_FUNMAP)) ++(s)->n_sgltn[w];
+    if (!((c)->flag & BAM_FUNMAP) && !((c)->flag & BAM_FMUNMAP)) {
+      ++(s)->n_pair_map[w];
+      if ((c)->mtid != (c)->tid) {
+        ++(s)->n_diffchr[w];
+        if ((c)->qual >= 5) ++(s)->n_diffhigh[w];
+      }
+    }
+  }
+  if (!((c)->flag & BAM_FUNMAP)) ++(s)->n_mapped[w];
+  if ((c)->flag & BAM_FDUP) ++(s)->n_dup[w];
+}
 
 bam_flagstat_t *bam_flagstat_core(bamFile fp)
 {
