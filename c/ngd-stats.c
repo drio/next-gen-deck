@@ -7,7 +7,7 @@
 #include "bam.h"
 
 #define PRG_NAME "ngd-stats"
-#define MAX_ISIZE_VALUE 10000
+#define MAX_ISIZE_VALUE 100000
 
 typedef struct {
   long long n_reads[2], n_mapped[2], n_pair_all[2], n_pair_map[2], n_pair_good[2];
@@ -19,6 +19,7 @@ typedef struct {
 
 inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
 {
+  int absolute, is_index;
   int w = (c->flag & BAM_FQCFAIL) ? 1 : 0;
   ++(s)->n_reads[w];
 
@@ -28,7 +29,14 @@ inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
     if ((c)->flag & BAM_FREAD1) ++(s)->n_read1[w];
     if ((c)->flag & BAM_FREAD2) ++(s)->n_read2[w];
     if (((c)->flag & BAM_FMUNMAP) && !((c)->flag & BAM_FUNMAP)) ++(s)->n_sgltn[w];
-    if (!((c)->flag & BAM_FUNMAP) && !((c)->flag & BAM_FMUNMAP)) {
+    if (!((c)->flag & BAM_FUNMAP) && !((c)->flag & BAM_FMUNMAP)) { // both ends map
+      // For insert size distribution
+      if (c->isize) { // 0 in isize means the isize calc is in the other mate, skip.
+        absolute = (c->isize < 0) ? c->isize * -1 : c->isize;
+        is_index = (absolute > MAX_ISIZE_VALUE) ? -1 : absolute;
+        ++(s)->is_dist[is_index];
+      }
+
       ++(s)->n_pair_map[w];
       if ((c)->mtid != (c)->tid) {
         ++(s)->n_diffchr[w];
@@ -36,7 +44,9 @@ inline void flagstat_loop(bam_flagstat_t *s, bam1_core_t *c)
       }
     }
   }
-  if (!((c)->flag & BAM_FUNMAP)) ++(s)->n_mapped[w];
+  if (!((c)->flag & BAM_FUNMAP)) {
+    ++(s)->n_mapped[w];
+  }
   if ((c)->flag & BAM_FDUP) ++(s)->n_dup[w];
 }
 
@@ -71,11 +81,11 @@ void dump_stats(bam_flagstat_t *s, char *seed)
   char fname[100];
 
   open_for_output(&fp, fname, seed, ".stats.csv");
-  fprintf(fp, "key,value\n");
+  fprintf(fp, "key,value\n"); // header
   fprintf(fp, "n_reads,%lld\n", s->n_reads[0]);
   fprintf(fp, "n_failed_reads,%lld\n", s->n_reads[1]);
-  fprintf(fp, "n_duplicates,%lld\n", s->n_dup[0]);
-  fprintf(fp, "n_mapped_reads,%lld\n", s->n_mapped[0]);
+  fprintf(fp, "n_duplicate_reads,%lld\n", s->n_dup[0]);
+  fprintf(fp, "n_reads_mapped,%lld\n", s->n_mapped[0]);
   fprintf(fp, "n_paired_reads,%lld\n", s->n_pair_all[0]);
   fprintf(fp, "n_read1,%lld\n", s->n_read1[0]);
   fprintf(fp, "n_read2,%lld\n", s->n_read2[0]);
@@ -85,6 +95,19 @@ void dump_stats(bam_flagstat_t *s, char *seed)
   fprintf(fp, "n_pairs_with_mate_mapping_to_diff_chrms,%lld\n", s->n_diffchr[0]);
   //printf("%lld + %lld with mate mapped to a different chr (mapQ>=5)\n", s->n_diffhigh[0], s->n_diffhigh[1]);
 
+  fclose(fp);
+}
+
+void dump_is(bam_flagstat_t *s, char *seed)
+{
+  FILE *fp;
+  char fname[100];
+  int i;
+
+  open_for_output(&fp, fname, seed, ".isize.dist.csv");
+  fprintf(fp, "isize,amount\n"); // header
+  for (i=-1; i<MAX_ISIZE_VALUE; ++i)
+    fprintf(fp, "%d,%lld\n", i, s->is_dist[i]);
   fclose(fp);
 }
 
@@ -107,6 +130,7 @@ int main(int argc, char *argv[])
   header = bam_header_read(fp);
   s = bam_flagstat_core(fp);
   dump_stats(s, seed_name);
+  dump_is(s, seed_name);
 
   free(s);
   bam_header_destroy(header);
