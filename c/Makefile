@@ -14,7 +14,7 @@ all: ngd-stats
 #ngd-stats.o: ngd-stats.c
 
 ngd-stats: ngd-stats.c
-  $(CC) $(CFLAGS) $(DFLAGS) $(INCLUDES) $< $(LIBPATH) -o $@
+	$(CC) $(CFLAGS) $(DFLAGS) $(INCLUDES) $< $(LIBPATH) -o $@
 
 clean:
 	rm -f *.o ngd-stats
