@@ -159,20 +159,19 @@ int header_records(char *rt, char *t, int p, char *t_text, int *i)
   int j;
 
   while (t[p] != '\n') { // while still on line
-    // add the record type one each csv entry
+    // The first column on the csv has to be the record type
     t_text[*i] = rt[0]; t_text[(*i)+1] = rt[1]; t_text[(*i)+2] = ','; *i = (*i)+3;
 
-    for (j=0; j<2; ++j, ++p, ++(*i)) { // get the tag_name
+    for (j=0; j<2; ++j, ++p, ++(*i)) // get the tag_name
       t_text[*i] = t[p];
-    }
 
     ++p; // skip ':' in header text and put the separator
     t_text[*i] = ','; (*i)++;
 
     while (t[p] != '\t' && t[p] != '\n') { // get the tag value
       t_text[*i] = t[p];
-      ++p;
       ++(*i);
+      ++p;
     }
 
     t_text[*i] = ',' ; (*i)++;
@@ -183,13 +182,22 @@ int header_records(char *rt, char *t, int p, char *t_text, int *i)
   return p;
 }
 
+/*
+ * text: header text
+ * nc  : number of chrs in text
+ * seed: seed name for the output file
+ *
+ * Finds the RG and PG tag lines, and calls another auxiliar function
+ * that will extract all the records for those tags and set them in
+ * csv format. Then the csv is saved to a file.
+ */
 void dump_header_data(char *text, int nc, char *seed)
 {
   FILE *fp;
   char fname[100];
   int p, i, j; // pointer in text, index in s_tag, index in t_text;
   char s_tag[4];
-  char t_text[10000] = {0}; // text of one tag
+  char t_text[100000]; // text of one tag TODO: dynamic!!
 
   open_for_output(&fp, fname, seed, ".header.csv");
   fprintf(fp, "key,value\n"); // header
@@ -198,8 +206,11 @@ void dump_header_data(char *text, int nc, char *seed)
   i = j = 0;
   while (p < nc) {
     for (i=0; i<3; ++i) s_tag[i] = text[p+i];
-    if (strcmp(s_tag, "@RG") == 0) p = header_records("RG", text, p+4, t_text, &j);
-    if (strcmp(s_tag, "@PG") == 0) p = header_records("PG", text, p+4, t_text, &j);
+    // notice how we set the pointer to the right place before the call +4
+    if (strcmp(s_tag, "@RG") == 0)
+      p = header_records("RG", text, p+4, t_text, &j);
+    if (strcmp(s_tag, "@PG") == 0)
+      p = header_records("PG", text, p+4, t_text, &j);
     ++p;
   }
   printf("-------------\n");
