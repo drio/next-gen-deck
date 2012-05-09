@@ -200,7 +200,7 @@ void dump_header_data(char *text, int nc, char *seed)
   char t_text[100000]; // text of one tag TODO: dynamic!!
 
   open_for_output(&fp, fname, seed, ".header.csv");
-  fprintf(fp, "key,value\n"); // header
+  fprintf(fp, "record,tag,value,\n"); // header
 
   p = 0; s_tag[3] = '\0';
   i = j = 0;
@@ -213,10 +213,8 @@ void dump_header_data(char *text, int nc, char *seed)
       p = header_records("PG", text, p+4, t_text, &j);
     ++p;
   }
-  printf("-------------\n");
-  printf("%s", t_text);
-  printf("-------------\n");
 
+  fprintf(fp, "%s", t_text);
   fclose(fp);
 }
 
