@@ -7,7 +7,7 @@
 #include "bam.h"
 
 #define PRG_NAME "ngd-stats"
-#define MAX_ISIZE_VALUE 100000
+#define MAX_ISIZE_VALUE 10000
 #define MAX_MAPPING_QUAL 255
 
 typedef struct {
