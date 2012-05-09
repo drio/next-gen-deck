@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
   bam_flagstat_t *s;
 
   if (argc != 3) {
-    fprintf(stderr, "Usage: %s flagstat <output_seed> <in.bam>\n", PRG_NAME);
+    fprintf(stderr, "Usage: %s <output_seed> <in.bam>\n", PRG_NAME);
     return 1;
   }
 
