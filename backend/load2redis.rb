@@ -5,12 +5,13 @@
 # This tool will traverse the current directory looking for
 # csv files. When found, it would update redis with the contents.
 #
+# All deps (except redis) come with ruby
+#
 require 'find'
 require 'csv'
 require 'pp'
 require 'redis'
 require 'json'
-require 'open-uri'
 
 # Dump into redis the data we just loaded, do it
 # in such a way that later we can query redis
@@ -25,6 +26,7 @@ require 'open-uri'
 # 2. All the isizes/amount pairs for a particular bam
 #   redis: stats[full_path] = val
 #
+# TODO: This needs heavy refactoring ... looks uggly
 def dump_in_redis(h)
   redis = Redis.new
   h.each do |levels, h_csvs|
@@ -37,12 +39,9 @@ def dump_in_redis(h)
 
         # If we are processing a csv stats and we are in the metric we
         # are interested on, dump it to redis
-        if csv =~ /stats/ && line[0] == "n_reads_mapped"
-          redis.hset("per_mapped", levels, line[1])
-        end
-
-        if csv =~ /stats/ && line[0] == "n_duplicate_reads"
-          redis.hset("per_dups", levels, line[1])
+        if csv =~ /stats/
+          redis.hset("per_dups", levels, line[1]) if line[0] == "n_duplicate_reads"
+          redis.hset("per_mapped", levels, line[1]) if line[0] == "n_reads_mapped"
         end
 
         # Keep the dist values for the different distributions for later
@@ -74,7 +73,7 @@ def load_data(h, fpath)
   return h
 end
 
-# MAIN ...
+# MAIN
 #
 $stderr.puts ">> Loading csvs ..."
 csvs = Hash.new {|h, k| h[k] = {}}
