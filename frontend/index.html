@@ -15,15 +15,21 @@
     <script type="text/javascript" src="js/deps/d3.v2.min.js"></script>
 
     <!-- js code here  -->
-    <!-- <script type="text/javascript" src="d3.plots.js"></script> -->
+    <script type="text/javascript" src="js/plots.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
     <!-- Tracking/analytics code  -->
   </head>
 
   <body>
     <div id="body">
-      <div id="main-plot">
-      </div>
+      <aside style="margin-top: 80px">
+        <div id="xlabel-static" style="float:left">X-axis:</div>
+        <div id="xlabel-dynamic" style="float:left">Event number.</div>
+
+        <div id="ylabel-static" style="clear:left;float:left">Y-axis:</div>
+        <div id="xlabel-dynamic" style="float:left">% of duplicates.</div>
+      </aside>
+      <div id="main-plot"></div>
     </div>
   </body>
 </html>
