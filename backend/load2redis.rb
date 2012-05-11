@@ -31,9 +31,10 @@ end
 # TODO: This needs heavy refactoring ... looks uggly
 def dump_in_redis(h)
   redis = Redis.new
+  all   = {} # This will hold all the bams and its stats
   h.each do |levels, h_csvs|              # a directory
     h_csvs.each do |csv, a_data|          # csvs on that directory
-      dist_is, dist_mq_r1, dist_mq_r2 = [{}, {}, {}]
+      dist_is, dist_mq_r1, dist_mq_r2, stats = [{}, {}, {}, {}]
       n_reads = nil
       a_data.each_with_index do |line, i| # a line from a csv
         # If we are processing a csv stats and we are in the metric we
@@ -41,26 +42,31 @@ def dump_in_redis(h)
         if csv =~ /stats/
           n_reads = line[1] if line[0] == "n_reads"
           if line[0] == "n_duplicate_reads"
-            redis.hset("per_dups", levels, per(n_reads,line[1]))
+            #redis.hset("per_dups", levels, per(n_reads,line[1]))
+            stats["per_dups"] = per n_reads, line[1]
           end
           if line[0] == "n_reads_mapped"
-            redis.hset("per_mapped", levels, per(n_reads, line[1]))
+            #redis.hset("per_mapped", levels, per(n_reads, line[1]))
+            stats["per_mapped"] = per n_reads, line[1]
           end
         end
-
         # Keep the dist values for the different distributions for later
         dist_is[line[0].to_i]    = line[1].to_i if csv =~ /isize/ && i != 0
         dist_mq_r1[line[0].to_i] = line[1].to_i if csv =~ /r1\.mapq/  && i != 0
         dist_mq_r2[line[0].to_i] = line[1].to_i if csv =~ /r2\.mapq/  && i != 0
       end
 
-      # if we have distribution data, dump it in redis as a JSON object
       clean_level = levels.gsub(/\s/, '-')
+      # Save the stats so we can dump to redis later
+      all[clean_level] = stats unless stats.empty?
+      # if we have distribution data, dump it in redis as a JSON object
       redis.set "is-"    + clean_level, dist_is.to_json    unless dist_is.empty?
       redis.set "mq-r1-" + clean_level, dist_mq_r1.to_json unless dist_mq_r1.empty?
       redis.set "mq-r2-" + clean_level, dist_mq_r2.to_json unless dist_mq_r2.empty?
     end
   end
+  # Dump all the events that we have and its stats
+  all.each {|id, json| redis.set "stats", all.to_json}
 end
 
 #
