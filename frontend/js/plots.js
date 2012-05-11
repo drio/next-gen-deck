@@ -1,11 +1,9 @@
 var plots = (function() {
   var plots = {};
 
-  plots.barplot = function(sel, data) {
-    var w       = 800,
-        h       = 400,
-        padding = 20,
-        radio   = 3;
+  plots.barplot = function(sel, data, w, h) {
+    var padding = 20,
+        radio   = 4;
 
     var x = d3.scale.linear()
               .domain([0, d3.max(data, function(d) { return d[0];})])

@@ -20,7 +20,7 @@ $(function(){
       dataset.push([newNumber1, newNumber2]);
     }
 
-    plots.barplot("#main-plot", a_per_dups);
+    plots.barplot("#main-plot", a_per_dups, 800, 200);
     //plots.barplot("#main-plot", dataset);
   });
 });
