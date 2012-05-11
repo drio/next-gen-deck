@@ -1,7 +1,51 @@
 var plots = (function() {
   var plots = {};
 
+  /*
+   * Plots a barplot in sel, using data, and with
+   * width w and height h.
+   */
   plots.barplot = function(sel, data, w, h) {
+    var bar_padding = 1;
+
+    var svg = d3.select(sel)
+                  .append("svg")
+                  .attr("width", w)
+                  .attr("height", h);
+
+    var y = d3.scale.linear()
+              .domain([0, d3.max(data)])
+              .range([bar_padding, h]);
+
+    svg.selectAll("rect")
+       .data(data)
+       .enter()
+       .append("rect")
+         .attr("x", function(d, i) { return i * (w / data.length); })
+         .attr("y", function(d)    { return h - y(d); })
+         .attr("width", w / data.length - bar_padding)
+         .attr("height", function(d) { return y(d); });
+         //.attr("fill", function(d) { return "rgb(0, 0, " + (d * 10) + ")"; });
+
+    /*
+    svg.selectAll("text")
+       .data(data)
+       .enter()
+       .append("text")
+       .text(function(d) { return d; })
+       .attr("x", function(d, i) { return i * (w / data.length) + 5; })
+       .attr("y", function(d) { return h - (d * 4) + 15; })
+       .attr("font-family", "sans-serif")
+       .attr("font-size", "11px")
+       .attr("fill", "white");
+    */
+  }
+
+  /*
+   * Plots a dotplot in sel, using data, and with
+   * width w and height h.
+   */
+  plots.dotplot = function(sel, data, w, h) {
     var padding = 20,
         radio   = 4;
 
@@ -56,7 +100,6 @@ var plots = (function() {
         .attr("class", "axis")
         .attr("transform", "translate(" + padding + ",0)")
         .call(y_axis);
-
   };
 
   return plots;

@@ -11,16 +11,18 @@ $(function(){
     //console.log(bams["rhesus-23_samples_endometriosis-1"]["per_dups"]);
     console.log(a_per_dups);
 
+    plots.dotplot("#main-plot", a_per_dups, 800, 200);
+
     var dataset = [];
-    var numDataPoints = 100;
-    var yRange = Math.random() * 1000;
+    var numDataPoints = 255;
+    var yRange = Math.random() * 255;
     for (var i = 0; i < numDataPoints; i++) {
       var newNumber1 = i;
       var newNumber2 = Math.round(Math.random() * yRange);
-      dataset.push([newNumber1, newNumber2]);
+      //dataset.push([newNumber1, newNumber2]);
+      dataset.push(newNumber2);
     }
-
-    plots.barplot("#main-plot", a_per_dups, 800, 200);
-    //plots.barplot("#main-plot", dataset);
+    console.log(dataset);
+    plots.barplot("#bar-plot", dataset, 450, 200);
   });
 });
