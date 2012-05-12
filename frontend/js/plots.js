@@ -2,6 +2,26 @@ var plots = (function() {
   var plots = {};
 
   /*
+   * Creates a table in the given selection.
+   * Data has to be an Array of Arrays.
+   */
+  plots.table = function(sel, data) {
+    d3.select(sel)
+        .append("table")
+
+        .selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr")
+
+        .selectAll("td")
+        .data(function(d){ return d;})
+        .enter()
+        .append("td")
+        .text(function(d) { return d;})
+  }
+
+  /*
    * Plots a barplot in sel, using data, and with
    * width w and height h.
    */
