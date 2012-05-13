@@ -64,8 +64,9 @@ var plots = (function() {
   /*
    * Plots a dotplot in sel, using data, and with
    * width w and height h.
+   * cb_md can be a callback for the mousedown event
    */
-  plots.dotplot = function(sel, data, w, h) {
+  plots.dotplot = function(sel, data, w, h, cb_md) {
     var padding = 20,
         radio   = 4;
 
@@ -91,12 +92,19 @@ var plots = (function() {
                 .attr("height", h);
 
     svg.selectAll("circle")
-       .data(data)
-       .enter()
-       .append("circle")
-       .attr("cx", function(d) { return x(d[0]); })
-       .attr("cy", function(d) { return y(d[1]); })
-       .attr("r", radio);
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("cx", function(d) { return x(d[0]); })
+      .attr("cy", function(d) { return y(d[1]); })
+      .attr("r", radio)
+      .on("mouseover", function() {
+        d3.select(this).style("fill", "red")
+      })
+      .on("mouseout", function() {
+        d3.select(this).style("fill", "black") // TODO: More flexible
+      })
+      .on("mousedown", cb_md);
 
     /*
     svg.selectAll("text")
