@@ -15,15 +15,18 @@ $(function(){
   }
 
   // When the user clicks a bam, plot the details
-  var plot_details = function(d, id) {
+  var plot_details = function(d, i) { // data, index
     // These are the prefixes for the redis keys.
     // TODO: this is very hardcoded.. refactor ..
     var seeds   = ["is-", "mq-r1-", "mq-r2-"],
-        rd_keys = []; // Will hold the actual redis keys
+        rd_keys = [], // Will hold the actual redis keys
+        id      = d.a_ids[i]; // id name of the bam we are interested on
 
+    // We have in d.stats all the basic stats for that sample, but we have
+    // to pull the rest of the data for the other plots
     d.sp_data = { amount_collected: 0 }; // Store the data for the ajax requests
     _.each(seeds, function(e) {
-      var rd_key = e + d.a_ids[id]; // build the actual redis key
+      var rd_key = e + id; // build the actual redis key
       // As the callbacks are served, save the data. Use amount_collected to
       // determine if we are done
       $.getJSON('http://localhost:7379/get/' + rd_key, function(json_d) {
@@ -32,8 +35,14 @@ $(function(){
         // The json object returned has two attributes, one is the type and
         // the other is the actual data
         d.sp_data[o.type] = o.data;
-        if (d.sp_data.amount_collected === 3) {
+        if (d.sp_data.amount_collected === 3) { // All ajax calls done
           console.log("Ready to do things ...");
+          var a_for_table = []
+          _.each(d.stats[id], function(val, key){
+            a_for_table.push([key, val]);
+          });
+          $("#table").html(""); plots.table("#table", a_for_table);
+          d3.selectAll("#second-area").style("display", "block");
         }
       });
     });

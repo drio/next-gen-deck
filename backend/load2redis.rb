@@ -52,10 +52,11 @@ def dump_in_redis(h)
           if line[0] == "n_duplicate_reads"
             #redis.hset("per_dups", levels, per(n_reads,line[1]))
             stats["per_dups"] = per n_reads, line[1]
-          end
-          if line[0] == "n_reads_mapped"
+          elsif line[0] == "n_reads_mapped"
             #redis.hset("per_mapped", levels, per(n_reads, line[1]))
             stats["per_mapped"] = per n_reads, line[1]
+          else
+            stats[line[0]] = line[1]
           end
         end
         # Keep the dist values for the different distributions for later

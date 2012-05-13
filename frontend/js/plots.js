@@ -68,7 +68,7 @@ var plots = (function() {
    */
   plots.dotplot = function(sel, data, w, h, cb_md) {
     var padding = 20,
-        radio   = 4;
+        radio   = 5;
 
     var x = d3.scale.linear()
               .domain([0, d3.max(data, function(d) { return d[0];})])
