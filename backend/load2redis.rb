@@ -17,6 +17,14 @@ def per(total, n)
   ((n.to_f*100)/total.to_f).round(2)
 end
 
+# The value of the keys stored in redis have to have
+# to attributes, one is the type and the other the data (json data)
+# The type will be use in the client to determine what type
+# of data we have in the object
+def tj(type, data)
+  {"type" => type, "data" => data}.to_json
+end
+
 # Dump into redis the data we just loaded, do it
 # in such a way that later we can query redis
 # via web and answer these type of questions:
@@ -60,12 +68,13 @@ def dump_in_redis(h)
       # Save the stats so we can dump to redis later
       all[clean_level] = stats unless stats.empty?
       # if we have distribution data, dump it in redis as a JSON object
-      redis.set "is-"    + clean_level, dist_is.to_json    unless dist_is.empty?
-      redis.set "mq-r1-" + clean_level, dist_mq_r1.to_json unless dist_mq_r1.empty?
-      redis.set "mq-r2-" + clean_level, dist_mq_r2.to_json unless dist_mq_r2.empty?
+      redis.set "is-"    + clean_level, tj("isize", dist_is)    unless dist_is.empty?
+      redis.set "mq-r1-" + clean_level, tj("mq-r1", dist_mq_r1) unless dist_mq_r1.empty?
+      redis.set "mq-r2-" + clean_level, tj("mq-r2", dist_mq_r2) unless dist_mq_r2.empty?
     end
   end
   # Dump all the events that we have and its stats
+  # You can retrieve these data via http with: GET /get/stats
   all.each {|id, json| redis.set "stats", all.to_json}
 end
 

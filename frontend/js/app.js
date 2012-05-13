@@ -14,8 +14,32 @@ $(function(){
     return tdata;
   }
 
-  // Do all the plotting when the data is ready. d has data.
-  var plot_details = function(d) {
+  // When the user clicks a bam, plot the details
+  var plot_details = function(d, id) {
+    // These are the prefixes for the redis keys.
+    // TODO: this is very hardcoded.. refactor ..
+    var seeds   = ["is-", "mq-r1-", "mq-r2-"],
+        rd_keys = []; // Will hold the actual redis keys
+
+    d.sp_data = { amount_collected: 0 }; // Store the data for the ajax requests
+    _.each(seeds, function(e) {
+      var rd_key = e + d.a_ids[id]; // build the actual redis key
+      // As the callbacks are served, save the data. Use amount_collected to
+      // determine if we are done
+      $.getJSON('http://localhost:7379/get/' + rd_key, function(json_d) {
+        var o  = $.parseJSON(json_d.get);
+        ++d.sp_data.amount_collected;
+        // The json object returned has two attributes, one is the type and
+        // the other is the actual data
+        d.sp_data[o.type] = o.data;
+        if (d.sp_data.amount_collected === 3) {
+          console.log("Ready to do things ...");
+        }
+      });
+    });
+
+    //console.log("Click ..." + d.a_ids[id]);
+
     // Users wants details for an specific bam
     // Second part; table of stats
     //plots.table("#table", [[1,2], [3,4]]);
@@ -51,8 +75,10 @@ $(function(){
     });
 
     // Main plot here
+    // The funcion is the callback for when the user clicks a bam in the
+    // main plot
     plots.dotplot("#main-plot", data.a_per_dups, 800, 200, function(d, i) {
-      console.log("Click ..." + data.a_ids[i]);
+      plot_details(data, i);
     });
   });
 });
