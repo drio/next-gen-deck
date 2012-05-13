@@ -14,8 +14,29 @@ $(function(){
     return tdata;
   }
 
-  // When the user clicks a bam, plot the details
-  var plot_details = function(d, i) { // data, index
+  // Plot the table and the other plots now that we know what bam the
+  // user is interested on and we have the data
+  var plot_details = function(d, id) {
+    console.log("Ready to plot things ...");
+    var a_for_table = []
+    _.each(d.stats[id], function(val, key){
+      a_for_table.push([key, val]);
+    });
+    $("#table").html(""); plots.table("#table", a_for_table);
+    d3.selectAll("#second-area").style("display", "block");
+
+    //plots.table("#table", [[1,2], [3,4]]);
+
+    //plots.dotplot("#isize-plot", d.a_per_dups, 550, 200);
+
+    // Finally read1/read2 barplots
+    //var gd = gen_testing_data;
+    //plots.barplot("#mapq-plot-r1", gd()._1d, 550, 200);
+    //plots.barplot("#mapq-plot-r2", gd()._1d, 550, 200);
+  }
+
+  // When the user clicks a bam, pull the data details so we can plot
+  var pull_details = function(d, i) { // data, index
     // These are the prefixes for the redis keys.
     // TODO: this is very hardcoded.. refactor ..
     var seeds   = ["is-", "mq-r1-", "mq-r2-"],
@@ -35,31 +56,10 @@ $(function(){
         // The json object returned has two attributes, one is the type and
         // the other is the actual data
         d.sp_data[o.type] = o.data;
-        if (d.sp_data.amount_collected === 3) { // All ajax calls done
-          console.log("Ready to do things ...");
-          var a_for_table = []
-          _.each(d.stats[id], function(val, key){
-            a_for_table.push([key, val]);
-          });
-          $("#table").html(""); plots.table("#table", a_for_table);
-          d3.selectAll("#second-area").style("display", "block");
-        }
+        if (d.sp_data.amount_collected === 3) // All ajax calls done
+          plot_details(d, id);
       });
     });
-
-    //console.log("Click ..." + d.a_ids[id]);
-
-    // Users wants details for an specific bam
-    // Second part; table of stats
-    //plots.table("#table", [[1,2], [3,4]]);
-
-    // Now the Insert size plot
-    //plots.dotplot("#isize-plot", d.a_per_dups, 550, 200);
-
-    // Finally read1/read2 barplots
-    //var gd = gen_testing_data;
-    //plots.barplot("#mapq-plot-r1", gd()._1d, 550, 200);
-    //plots.barplot("#mapq-plot-r2", gd()._1d, 550, 200);
   }
 
   // Make a call to get our data so we can plot
@@ -87,7 +87,7 @@ $(function(){
     // The funcion is the callback for when the user clicks a bam in the
     // main plot
     plots.dotplot("#main-plot", data.a_per_dups, 800, 200, function(d, i) {
-      plot_details(data, i);
+      pull_details(data, i);
     });
   });
 });
