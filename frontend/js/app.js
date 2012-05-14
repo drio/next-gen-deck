@@ -17,23 +17,31 @@ $(function(){
   // Plot the table and the other plots now that we know what bam the
   // user is interested on and we have the data
   var plot_details = function(d, id) {
+    var p_data = []; // data plot
     console.log("Ready to plot things ...");
-    var a_for_table = []
-    _.each(d.stats[id], function(val, key){
-      a_for_table.push([key, val]);
-    });
-    $("#table").html(""); plots.table("#table", a_for_table);
-    d3.selectAll("#second-area").style("display", "block");
 
-    //plots.table("#table", [[1,2], [3,4]]);
+    // Plot table
+    _.each(d.stats[id], function(val, key){ p_data.push([key, val]); });
+    $("#table").html(""); plots.table("#table", p_data);
 
-    //plots.dotplot("#isize-plot", d.a_per_dups, 550, 200);
+    // Plot the isize dotpot
+    p_data = [];
+    _.each(d.sp_data.isize, function(val, key) { p_data.push([key, val]); });
+    $("#isize-plot").html(""); plots.dotplot("#isize-plot", p_data, 550, 200);
 
     // Finally read1/read2 barplots
-    //var gd = gen_testing_data;
-    //plots.barplot("#mapq-plot-r1", gd()._1d, 550, 200);
-    //plots.barplot("#mapq-plot-r2", gd()._1d, 550, 200);
-  }
+    // TODO: DRY
+    p_data = [];
+    _.each(d.sp_data["mq-r1"], function(val, key) { p_data.push(val); });
+    $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 850, 200);
+
+    p_data = [];
+    _.each(d.sp_data["mq-r2"], function(val, key) { p_data.push(val); });
+    $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 850, 200);
+
+    // Reveale the layer that contains the subplots
+    d3.selectAll("#second-area").style("display", "block");
+}
 
   // When the user clicks a bam, pull the data details so we can plot
   var pull_details = function(d, i) { // data, index
@@ -44,7 +52,8 @@ $(function(){
         id      = d.a_ids[i]; // id name of the bam we are interested on
 
     // We have in d.stats all the basic stats for that sample, but we have
-    // to pull the rest of the data for the other plots
+    // to pull the rest of the data for the other plots. sp_data stands for
+    // subplot data.
     d.sp_data = { amount_collected: 0 }; // Store the data for the ajax requests
     _.each(seeds, function(e) {
       var rd_key = e + id; // build the actual redis key
