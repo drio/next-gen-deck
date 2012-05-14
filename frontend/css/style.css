@@ -1,38 +1,50 @@
-html {
-  min-width: 1200px;
-}
-
 body {
   font-family: "Helvetica Neue";
   margin: auto;
-  margin-top: 40px;
-  margin-bottom: 4em;
+  margin-top: 10px;
+  margin-bottom: 10px;
   width: 960px;
 }
 
-#body {
-  position: relative;
+b {
+  font-weight: bold;
 }
 
-.axis path,
-.axis line {
-  fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
-}
+#body { }
 
-.axis text {
-  font-family: sans-serif;
-  font-size: 11px;
-}
 
-aside {
-  font-size: small;
-  left: 780px;
-  position: absolute;
-  width: 250px;
-  padding: 10px;
-}
+  #main-area {
+    position:relative;
+    left: 0px;
+    top: 0px;
+    /*
+    border-width: 2px;
+    border-color: red;
+    background-color: grey;
+    border-style: solid;
+    */
+  }
+
+    #main-left {
+      position:relative;
+      left: 0px;
+    }
+
+    .legend {
+      position:absolute;
+      font-size: small;
+      height: 10px;
+      width: 150px;
+      right: 40px;
+    }
+
+    #legend-x {
+      top:70px;
+    }
+
+    #legend-y {
+      top:85px;
+    }
 
 #second-area {
   position:relative;
@@ -59,3 +71,16 @@ aside {
 
 #mapq-plot-r2 {
 }
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+

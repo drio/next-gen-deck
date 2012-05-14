@@ -22,16 +22,10 @@
 
   <body>
     <div id="body">
-
       <div id="main-area">
-        <aside style="margin-top: 80px">
-          <div id="xlabel-static" style="float:left">X:</div>
-          <div id="xlabel-dynamic" style="float:left">Event number.</div>
-
-          <div id="ylabel-static" style="clear:left;float:left">Y:</div>
-          <div id="xlabel-dynamic" style="float:left">% of duplicates.</div>
-        </aside>
-        <div id="main-plot"> </div>
+        <div id="main-left"><div id="main-plot"></div></div>
+        <div id="legend-x" class="legend"><b>X</b>: Event number.</div>
+        <div id="legend-y" class="legend"><b>Y</b>: % of duplicates.</div>
       </div>
 
       <div id="second-area">
@@ -48,8 +42,7 @@
           <h3>Mapping Quality Distribution Read2</h3>
           <div id="mapq-plot-r2"></div>
         </div>
+      </div>
     </div>
-
-  </div>
   </body>
 </html>
