@@ -14,9 +14,6 @@ body {
   position: relative;
 }
 
-#main-plot {
-}
-
 .axis path,
 .axis line {
   fill: none;
@@ -35,42 +32,30 @@ aside {
   position: absolute;
   width: 250px;
   padding: 10px;
-  /*
-  border-style:solid;
-  border-size: 1px;
-  */
-}
-
-#xlabel-static, #ylabel-static {
-  /*
-  font-size: 14px;
-  line-height: 1.33em;
-  border-style:solid;
-  border-size: 1px;
-  */
-  font-weight:bold;
-  width: 15px;
-}
-
-#xlabel-dynamic, #ylabel-dynamic {
-  width: 100px;
-  padding: 2px;
-}
-
-#stats-table {
-  width: 400px;
-  border-style:solid;
-  border-size: 1px;
-  float: left;
-}
-
-#isize-barplot {
-  width: 350px;
-  border-style:solid;
-  border-size: 1px;
-  float: left;
 }
 
 #second-area {
-  padding: 10px;
+  position:relative;
+  display:none;
+}
+
+#main-table {
+  position:absolute;
+  top:0;
+  right:0;
+  width: 450px;
+}
+
+#subplots {
+  position:absolute;
+  width:400px;
+}
+
+#isize-plot {
+}
+
+#mapq-plot-r1 {
+}
+
+#mapq-plot-r2 {
 }
