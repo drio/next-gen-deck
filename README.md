@@ -116,6 +116,6 @@ bams (dots) and detail metrics for that bam will show up.
 
 ## TODO
 
-There is a lot of things that can be done from here. Fill free to send me
+There is a lot of things that can be done from here. Feel free to send me
 pull requests with new features or just request them in the ticket system.
 Any type of feedback would be very welcome.
