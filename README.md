@@ -109,8 +109,17 @@ dumping them to [redis](http://redis.io).
 
 Now we are ready to use the frontend.
 
-Make sure that [wedis](https://github.com/nicolasff/webdis) is up and running
-and fire up your favorite browser. Now point it to the index.html in
+Make sure that [wedis](https://github.com/nicolasff/webdis) is up and running.
+
+We haven't kept the js dependencies in this repo, but I have a convenient
+makefile in frontend/ that will download them for you. Just run:
+
+```
+$ cd frontend
+$ make
+```
+
+Now, fire up your favorite browser and point it to the index.html in
 the frontend directory.
 
 You should see the dotplot of the % of dups for your data. Click any of the
