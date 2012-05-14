@@ -66,9 +66,9 @@ var plots = (function() {
    * width w and height h.
    * cb_md can be a callback for the mousedown event
    */
-  plots.dotplot = function(sel, data, w, h, cb_md) {
+  plots.dotplot = function(sel, data, w, h, extras) {
     var padding = 50,
-        radio   = 3;
+        radio   = extras.radio;
 
     var x = d3.scale.linear()
               .domain([0, d3.max(data, function(d) { return d[0];})])
@@ -104,7 +104,7 @@ var plots = (function() {
       .on("mouseout", function() {
         d3.select(this).style("fill", "black") // TODO: More flexible
       })
-      .on("mousedown", cb_md);
+      .on("mousedown", extras.cb_md);
 
     /*
     svg.selectAll("text")

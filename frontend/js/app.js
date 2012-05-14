@@ -27,17 +27,20 @@ $(function(){
     // Plot the isize dotpot
     p_data = [];
     _.each(d.sp_data.isize, function(val, key) { p_data.push([key, val]); });
-    $("#isize-plot").html(""); plots.dotplot("#isize-plot", p_data, 550, 200);
+    $("#isize-plot").html("");
+    plots.dotplot("#isize-plot", p_data, 550, 200, {radio:1});
 
     // Finally read1/read2 barplots
     // TODO: DRY
     p_data = [];
     _.each(d.sp_data["mq-r1"], function(val, key) { p_data.push(val); });
     $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 850, 200);
+    console.log("data for mapq-r1: " + p_data);
 
     p_data = [];
     _.each(d.sp_data["mq-r2"], function(val, key) { p_data.push(val); });
     $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 850, 200);
+    console.log("data for mapq-r2: " + p_data);
 
     // Reveale the layer that contains the subplots
     d3.selectAll("#second-area").style("display", "block");
@@ -95,8 +98,10 @@ $(function(){
     // Main plot here
     // The funcion is the callback for when the user clicks a bam in the
     // main plot
-    plots.dotplot("#main-plot", data.a_per_dups, 800, 200, function(d, i) {
-      pull_details(data, i);
-    });
+    var extras = {
+      radio: 5,
+      cb_md: function(d, i) { pull_details(data, i); }
+    };
+    plots.dotplot("#main-plot", data.a_per_dups, 800, 200, extras);
   });
 });
