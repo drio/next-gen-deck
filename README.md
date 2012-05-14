@@ -52,7 +52,7 @@ library for manipulating documents based on data.
 The main plots show you dotplots of the percentage of mapped reads and
 duplicates for all your events so you can quickly look for errors.
 
-The *Next-Gen Deck* will load your events, but very soon I am going to
+The *Next-Gen Deck* will load all your events, but very soon I am going to
 add support for filtering based on the name of your events so you can focus
 on specific projects. Actually that's something that can be done very easily
 by just dumping data for the projects you are interested on.
@@ -60,9 +60,9 @@ by just dumping data for the projects you are interested on.
 
 ## Dependencies
 
-The C tool uses [samtools API](http://samtools.sourceforge.net/samtools-c.shtml).
-The ruby tool uses libraries that come standard with ruby. You just need a ruby
-interpreter.
+The C tool uses the [samtools API](http://samtools.sourceforge.net/samtools-c.shtml).
+The ruby tool uses libraries that come standard with ruby. You just need a
+[ruby](http://www.ruby-lang.org/en/) interpreter.
 
 We dump all the metrics in [redis](http://redis.io). Redis does not accept
 http queries natively. Luckily, there is a very lightweight tool called
@@ -100,6 +100,8 @@ up and running and then run the ruby tool:
 ```bash
 $ cd bams_path
 $ load2redis.rb
+>> Loading csvs ...
+>> Dumping into redis ...
 ```
 
 That shouldn't take too much time. It is basically sucking all the csvs and
@@ -108,11 +110,11 @@ dumping them to [redis](http://redis.io).
 Now we are ready to use the frontend.
 
 Make sure that [wedis](https://github.com/nicolasff/webdis) is up and running
-and fire up your favorite browser, and point it to the index.html in
-the frontned directory.
+and fire up your favorite browser. Now point it to the index.html in
+the frontend directory.
 
 You should see the dotplot of the % of dups for your data. Click any of the
-bams (dots) and detail metrics for that bam will show up.
+bams (dots) and detail metrics for that bam will show up. Repeat as necessary.
 
 ## TODO
 
