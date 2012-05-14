@@ -22,7 +22,12 @@ end
 # The type will be use in the client to determine what type
 # of data we have in the object
 def tj(type, data)
-  data[-1] = 0
+  if type == "isize"
+    data[-1] = 0;
+    reduced_data = {};
+    data.each {|k,v| reduced_data[k] = v if k <= 1000}
+    data = reduced_data
+  end
   {"type" => type, "data" => data}.to_json
 end
 

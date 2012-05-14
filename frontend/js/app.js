@@ -34,12 +34,12 @@ $(function(){
     // TODO: DRY
     p_data = [];
     _.each(d.sp_data["mq-r1"], function(val, key) { p_data.push(val); });
-    $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 450, 100);
+    $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 950, 100);
     console.log("data for mapq-r1: " + p_data);
 
     p_data = [];
     _.each(d.sp_data["mq-r2"], function(val, key) { p_data.push(val); });
-    $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 450, 100);
+    $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 950, 100);
     console.log("data for mapq-r2: " + p_data);
 
     // Reveale the layer that contains the subplots
