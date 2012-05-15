@@ -28,7 +28,7 @@ $(function(){
     p_data = [];
     _.each(d.sp_data.isize, function(val, key) { p_data.push([key, val]); });
     $("#isize-plot").html("");
-    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1});
+    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:60});
 
     // Finally read1/read2 barplots
     // TODO: DRY
@@ -87,11 +87,11 @@ $(function(){
 
     // Let's extract some data from the bams datastruct and put it
     // in a more convenient way.
-    data.a_per_dups = [];
-    data.a_ids      = [];
+    data.a_per_dups = []; data.a_per_mapped = []; data.a_ids = [];
     var _i = 0; // index
     _.each(bams, function(val, key){
       data.a_per_dups.push([_i++, val["per_dups"]]);
+      data.a_per_mapped.push([_i++, val["per_mapped"]]);
       data.a_ids.push(key);
     });
 
@@ -99,9 +99,11 @@ $(function(){
     // The funcion is the callback for when the user clicks a bam in the
     // main plot
     var extras = {
+      padding: 30,
       radio: 4,
       cb_md: function(d, i) { pull_details(data, i); }
     };
-    plots.dotplot("#main-plot", data.a_per_dups, 850, 200, extras);
+    plots.dotplot("#main-plot-dups", data.a_per_dups, 850, 150, extras);
+    plots.dotplot("#main-plot-mapped", data.a_per_mapped, 850, 150, extras);
   });
 });

@@ -13,7 +13,6 @@ b {
 
 #body { }
 
-
   #main-area {
     position:relative;
     left: 0px;
@@ -36,16 +35,13 @@ b {
       font-size: small;
       height: 10px;
       width: 150px;
-      right: 40px;
+      right: 5px;
     }
 
-    #legend-x {
-      top:70px;
-    }
-
-    #legend-y {
-      top:85px;
-    }
+    #legend-x-dups   { top:70px; }
+    #legend-y-dups   { top:85px; }
+    #legend-x-mapped { top:200px; }
+    #legend-y-mapped { top:215px; }
 
 #second-area {
   position:relative;
@@ -84,4 +80,3 @@ b {
   font-family: sans-serif;
   font-size: 11px;
 }
-

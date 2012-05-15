@@ -67,7 +67,7 @@ var plots = (function() {
    * cb_md can be a callback for the mousedown event
    */
   plots.dotplot = function(sel, data, w, h, extras) {
-    var padding = 60,
+    var padding = extras.padding,
         radio   = extras.radio;
 
     var x = d3.scale.linear()
