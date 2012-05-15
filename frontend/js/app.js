@@ -101,7 +101,16 @@ $(function(){
     var extras = {
       padding: 30,
       radio: 4,
-      cb_md: function(d, i) { pull_details(data, i); }
+      cb_md: function(d, i) { pull_details(data, i); },
+      // We want to highlight the dot in both plots, so d3 will callback
+      // when the user moves or leaves a dot.
+      cb_toggle: function(sel, i) {
+        var cc = sel.style("fill"),
+            nc = cc === "#ff0000" ? "black" : "red";
+        _.each(["#main-plot-dups", "#main-plot-mapped"], function(s){
+          d3.selectAll(s).selectAll("circle")[0][i].style.fill = nc;
+        });
+      }
     };
     plots.dotplot("#main-plot-dups", data.a_per_dups, 850, 150, extras);
     plots.dotplot("#main-plot-mapped", data.a_per_mapped, 850, 150, extras);

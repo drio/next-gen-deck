@@ -98,26 +98,9 @@ var plots = (function() {
       .attr("cx", function(d) { return x(d[0]); })
       .attr("cy", function(d) { return y(d[1]); })
       .attr("r", radio)
-      .on("mouseover", function() {
-        d3.select(this).style("fill", "red")
-      })
-      .on("mouseout", function() {
-        d3.select(this).style("fill", "black") // TODO: More flexible
-      })
+      .on("mouseover", function(d, i) { extras.cb_toggle(d3.select(this), i); })
+      .on("mouseout", function(d, i) { extras.cb_toggle(d3.select(this), i); })
       .on("mousedown", extras.cb_md);
-
-    /*
-    svg.selectAll("text")
-        .data(data)
-        .enter()
-        .append("text")
-        .text(function(d)       { return d[0] + "," + d[1]; })
-        .attr("x", function(d)  { return x(d[0]); })
-        .attr("y", function(d)  { return y(d[1]); })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px")
-        .attr("fill", "red");
-    */
 
     svg.append("g")
         .attr("class", "axis")
