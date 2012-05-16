@@ -22,10 +22,8 @@ var plots = (function() {
         .enter()
         .append("td")
         .text(function(d) {
-          if (all_numbers.test(d))
-            return humanize(d);
-          else
-            return d;
+          var _d = all_numbers.test(d) ? humanize(d) : d;
+          return _d;
         })
   }
 
