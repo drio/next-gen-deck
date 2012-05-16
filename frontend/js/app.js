@@ -112,6 +112,7 @@ $(function(){
         });
       }
     };
+
     plots.dotplot("#main-plot-dups", data.a_per_dups, 850, 150, extras);
     plots.dotplot("#main-plot-mapped", data.a_per_mapped, 850, 150, extras);
   });

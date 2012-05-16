@@ -91,16 +91,23 @@ var plots = (function() {
                 .attr("width", w)
                 .attr("height", h);
 
-    svg.selectAll("circle")
+    var circles = svg.selectAll("circle")
       .data(data)
       .enter()
       .append("circle")
       .attr("cx", function(d) { return x(d[0]); })
       .attr("cy", function(d) { return y(d[1]); })
-      .attr("r", radio)
+      .attr("r", radio);
+
+    // We don't want these features unless the user gave us
+    // a toggle method
+    if (extras.hasOwnProperty('cb_toggle') &&
+        typeof extras.cb_toggle !== undefined) {
+      circles
       .on("mouseover", function(d, i) { extras.cb_toggle(d3.select(this), i); })
       .on("mouseout", function(d, i) { extras.cb_toggle(d3.select(this), i); })
       .on("mousedown", extras.cb_md);
+    }
 
     svg.append("g")
         .attr("class", "axis")
