@@ -6,6 +6,8 @@ var plots = (function() {
    * Data has to be an Array of Arrays.
    */
   plots.table = function(sel, data) {
+    var humanize = d3.format(",d");
+
     d3.select(sel)
         .append("table")
 
@@ -18,7 +20,12 @@ var plots = (function() {
         .data(function(d){ return d;})
         .enter()
         .append("td")
-        .text(function(d) { return d;})
+        .text(function(d) {
+          if (/^\d+$/.test(d))
+            return humanize(d);
+          else
+            return d;
+        })
   }
 
   /*
