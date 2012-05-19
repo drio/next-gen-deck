@@ -5,8 +5,11 @@ This is the *Next-Gen Deck*, a tool that makes it very easy to QC your
 
 ## I want to know more
 
-The *Next-Gen Deck* is divided in two parts: the [Frontend](XXXXXX)
-and the [Backend](XXXX). The backend extracts data from
+The *Next-Gen Deck* is divided in two parts: the
+[Frontend](https://github.com/drio/next-gen-deck/tree/master/frontend)
+and the
+[Backend](https://github.com/drio/next-gen-deck/tree/master/backend).
+The backend extracts data from
 [bam](http://samtools.sourceforge.net/SAM1.pdf) files and loads them
 in [redis](http://redis.io/). The frontend is a web application that
 queries the redis server to visualize the different metrics available
@@ -15,7 +18,7 @@ and keep track of your data.
 
 ## Backend; details.
 
-The backend is divided in two parts. The [first](XXXXXXX) part is a tool
+The backend is divided in two parts. The first part is a tool
 that extracts metrics from a [bam](http://samtools.sourceforge.net/SAM1.pdf)
 and creates csv files with the different metrics (Mapped reads, duplicate reads,
 insert size values for the pairs, mapping qualities, etc ...). This part is
