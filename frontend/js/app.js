@@ -48,6 +48,9 @@ $(function(){
 
   // When the user clicks a bam, pull the data details so we can plot
   var pull_details = function(d, i) { // data, index
+    // Set the ID of bam we are getting details for
+    d3.select("#bam-id").text(d.a_ids[i]);
+
     // These are the prefixes for the redis keys.
     // TODO: this is very hardcoded.. refactor ..
     var seeds   = ["is-", "mq-r1-", "mq-r2-"],
@@ -105,11 +108,15 @@ $(function(){
       // We want to highlight the dot in both plots, so d3 will callback
       // when the user moves or leaves a dot.
       cb_toggle: function(sel, i) {
-        var cc = sel.style("fill"),
-            nc = cc === "#ff0000" ? "black" : "red";
+        var cc      = sel.style("fill"),
+            nc      = cc === "#ff0000" ? "black" : "red",
+            display = cc === "#ff0000" ? "none" : "block";
         _.each(["#main-plot-dups", "#main-plot-mapped"], function(s){
           d3.selectAll(s).selectAll("circle")[0][i].style.fill = nc;
         });
+
+        var sel_bn = d3.select("#quick-bam-id");
+        sel_bn.text(data.a_ids[i]).style("display", display);
       }
     };
 

@@ -43,12 +43,29 @@ b {
     #legend-x-mapped { top:200px; }
     #legend-y-mapped { top:215px; }
 
+    #quick-bam-id {
+      top: 270px;
+    }
+
 #second-area {
   position:relative;
   display:none;
 }
 
+#bam-id {
+  font-size: 26px;
+  font-weight: bold;
+  text-align: center;
+    /*
+    border-width: 2px;
+    border-color: red;
+    background-color: grey;
+    border-style: solid;
+    */
+}
+
 #main-table {
+  padding-top: 45px;
   position:absolute;
   top:0;
   right:0;
@@ -56,7 +73,9 @@ b {
 }
 
 #subplots {
+  padding-top: 45px;
   position:absolute;
+  top:0;
   width:400px;
 }
 
