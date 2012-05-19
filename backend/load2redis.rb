@@ -95,16 +95,13 @@ def load_data(h, fpath)
   levels = fpath.split('/')
   levels.delete('.'); levels.pop
   h[levels.join(" ")][f_name.gsub(/\.csv/, '')] = CSV.read fpath
-  return h
+  h
 end
 
 # MAIN
 #
 $stderr.puts ">> Loading csvs ..."
 csvs = Hash.new {|h, k| h[k] = {}}
-Find.find(".") do |f|
-  next unless f =~ /\.csv$/
-  csvs = load_data csvs, f
-end
+Find.find(".") {|f| csvs = load_data csvs, f if f =~ /\.csv$/ }
 $stderr.puts ">> Dumping into redis ..."
 dump_in_redis csvs
