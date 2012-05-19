@@ -28,7 +28,7 @@ $(function(){
     p_data = [];
     _.each(d.sp_data.isize, function(val, key) { p_data.push([key, val]); });
     $("#isize-plot").html("");
-    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:60});
+    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:70});
 
     // Finally read1/read2 barplots
     // TODO: DRY

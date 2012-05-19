@@ -14,11 +14,10 @@
 # via web and answer these type of questions:
 #
 # 1. The [ %_mapped || %_dups ] for all the bams
-#   redis: per_mapped[bam_full_path] = %_of_mapped
-#   query: http://127.0.0.1:7379/HVALS/per_mapped
-#
 # 2. All the isizes/amount pairs for a particular bam
-#   redis: stats[full_path] = val
+#
+# We will basically set key/vals where the vals are going to
+# have json data
 #
 module ToRedis
   REDIS = Redis.new
@@ -31,11 +30,8 @@ module ToRedis
         @dists = prepare_dist_struct        # hashes storing the dists per bam
         n_reads = nil                       # number of reads in a bam
         a_data.each_with_index do |line, i| # a line from a csv
-          if line[0] == "n_reads"
-            n_reads = line[1]
-          else
-            process_line csv, line, i, n_reads
-          end
+          n_reads = line[1] if line[0] == "n_reads"
+          process_line csv, line, i, n_reads
         end
         send_dists_to_redis levels
       end
@@ -73,14 +69,13 @@ module ToRedis
 
   def ToRedis.send_dists_to_redis(levels)
     r = REDIS; d = @dists
-    clean_level = levels.gsub(/\s/, '-')
     # Save the stats so we can dump to redis later
-    @all[clean_level] = d.stats unless d.stats.empty?
+    @all[levels] = d.stats unless d.stats.empty?
 
     # if we have distribution data, dump it in redis as a JSON object
-    r.set "is-"    + clean_level, tj("isize", d.is)    unless d.is.empty?
-    r.set "mq-r1-" + clean_level, tj("mq-r1", d.mq_r1) unless d.mq_r1.empty?
-    r.set "mq-r2-" + clean_level, tj("mq-r2", d.mq_r2) unless d.mq_r2.empty?
+    r.set "is-"    + levels, tj("isize", d.is)    unless d.is.empty?
+    r.set "mq-r1-" + levels, tj("mq-r1", d.mq_r1) unless d.mq_r1.empty?
+    r.set "mq-r2-" + levels, tj("mq-r2", d.mq_r2) unless d.mq_r2.empty?
   end
 
   # The value of the keys stored in redis have to have
@@ -107,7 +102,7 @@ def load_data(h, fpath)
   f_name = File.basename fpath
   levels = fpath.split('/')
   levels.delete('.'); levels.pop
-  h[levels.join(" ")][f_name.gsub(/\.csv/, '')] = CSV.read fpath
+  h[levels.join(">>")][f_name.gsub(/\.csv/, '')] = CSV.read fpath
   h
 end
 
