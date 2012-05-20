@@ -16,7 +16,7 @@ queries the redis server to visualize the different metrics available
 for the different bams. This makes it very easy to find potential issues
 and keep track of your data.
 
-## Backend; details.
+## Backend
 
 The backend is divided in two parts. The first part is a tool
 that extracts metrics from a [bam](http://samtools.sourceforge.net/SAM1.pdf)
@@ -44,7 +44,7 @@ $ ln -s /other_path/bam2 ./project2/
 $ ln -s /other_path/bam3 ./project2/
 ```
 
-## Frontend; details.
+## Frontend
 
 The frontend is basically a web app that pulls data from redis and visualizes
 the different metrics for all the different events(bams) available.
