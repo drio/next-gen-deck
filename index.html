@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Next-gen-deck by drio</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Next-gen-deck</h1>
+        <p>A tool for QCing next gen sequencing data.</p>
+        <p class="view"><a href="https://github.com/drio/next-gen-deck">View the Project on GitHub <small>drio/next-gen-deck</small></a></p>
+        <ul>
+          <li><a href="https://github.com/drio/next-gen-deck/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/drio/next-gen-deck/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/drio/next-gen-deck">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>What's this?</h2>
+
+<p>This is the <em>Next-Gen Deck</em>, a tool that makes it very easy to QC your
+<a href="http://en.wikipedia.org/wiki/DNA_sequencing">Next-Gen sequencing</a> data.</p>
+
+<h2>I want to know more</h2>
+
+<p>The <em>Next-Gen Deck</em> is divided in two parts: the
+<a href="https://github.com/drio/next-gen-deck/tree/master/frontend">Frontend</a>
+and the
+<a href="https://github.com/drio/next-gen-deck/tree/master/backend">Backend</a>.
+The backend extracts data from
+<a href="http://samtools.sourceforge.net/SAM1.pdf">bam</a> files and loads them
+in <a href="http://redis.io/">redis</a>. The frontend is a web application that
+queries the redis server to visualize the different metrics available
+for the different bams. This makes it very easy to find potential issues
+and keep track of your data.</p>
+
+<h2>Backend; details.</h2>
+
+<p>The backend is divided in two parts. The first part is a tool
+that extracts metrics from a <a href="http://samtools.sourceforge.net/SAM1.pdf">bam</a>
+and creates csv files with the different metrics (Mapped reads, duplicate reads,
+insert size values for the pairs, mapping qualities, etc ...). This part is
+written in C using <a href="http://samtools.sourceforge.net/samtools-c.shtml">samtools API</a>.</p>
+
+<p>Once the csvs are computed per each
+<a href="http://samtools.sourceforge.net/SAM1.pdf">bam</a> we can use the second tool to
+store all these information in the <a href="http://redis.io">redis</a> database.</p>
+
+<p>Notice that the paths to the bams are used to keep track of different projects
+or subprojects. So we can have a filesystem layout like this:</p>
+
+<div class="highlight">
+<pre><span class="nv">$ </span><span class="nb">pwd</span>
+/tmp/bams
+<span class="nv">$ </span>mkdir project1
+<span class="nv">$ </span>mkdir project2
+<span class="nv">$ </span>ln -s /some_path/bam1 ./project1/
+<span class="nv">$ </span>ln -s /some_path/bam2 ./project2/
+
+<span class="nv">$ </span>ln -s /other_path/bam1 ./project2/
+<span class="nv">$ </span>ln -s /other_path/bam2 ./project2/
+<span class="nv">$ </span>ln -s /other_path/bam3 ./project2/
+</pre>
+</div>
+
+
+<h2>Frontend; details.</h2>
+
+<p>The frontend is basically a web app that pulls data from redis and visualizes
+the different metrics for all the different events(bams) available.</p>
+
+<p>At its heart, the app uses <a href="http://d3js.org/">d3</a>, a data driven javascript
+library for manipulating documents based on data.</p>
+
+<p>The main plots show you dotplots of the percentage of mapped reads and
+duplicates for all your events so you can quickly look for errors.</p>
+
+<p>The <em>Next-Gen Deck</em> will load all your events, but very soon I am going to
+add support for filtering based on the name of your events so you can focus
+on specific projects. Actually that's something that can be done very easily
+by just dumping data for the projects you are interested on.</p>
+
+<h2>Dependencies</h2>
+
+<p>The C tool uses the <a href="http://samtools.sourceforge.net/samtools-c.shtml">samtools API</a>.
+The ruby tool uses libraries that come standard with ruby. You just need a
+<a href="http://www.ruby-lang.org/en/">ruby</a> interpreter.</p>
+
+<p>We dump all the metrics in <a href="http://redis.io">redis</a>. Redis does not accept
+http queries natively. Luckily, there is a very lightweight tool called
+<a href="https://github.com/nicolasff/webdis">wedis</a> that fixes that.</p>
+
+<p>The frontend is a web app. It uses html, css and javascript. From the
+<a href="http://d3js.org/">d3</a> site:</p>
+
+<pre><code>only works in “modern” browsers, which generally means everything except IE8 and below
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>First, clone the project and compile the backend tool:</p>
+
+<div class="highlight">
+<pre>git clone git@github.com:drio/next-gen-deck
+<span class="nb">cd </span>next-gen-deck/backend ; make
+</pre>
+</div>
+
+
+<p>You probably want to put the backend dir in your PATH.</p>
+
+<p>Now create your the structure for your bams. Remember, the directory path will be
+stored so you can focus on specific projects and sub-projects.</p>
+
+<p>Once you have that in place, run ngd-stats against all your bams. You probably
+want to run those in parallel. Most likely you have all these in a HPC cluster.</p>
+
+<p>Now we should have all the data extracted in csv format per each of the bams.</p>
+
+<p>It is time to load all that to the redis server. Make sure that you have redis
+up and running and then run the ruby tool:</p>
+
+<div class="highlight">
+<pre><span class="nv">$ </span><span class="nb">cd </span>bams_path
+<span class="nv">$ </span>load2redis.rb
+&gt;&gt; Loading csvs ...
+&gt;&gt; Dumping into redis ...
+</pre>
+</div>
+
+
+<p>That shouldn't take too much time. It is basically sucking all the csvs and
+dumping them to <a href="http://redis.io">redis</a>.</p>
+
+<p>Now we are ready to use the frontend.</p>
+
+<p>Make sure that <a href="https://github.com/nicolasff/webdis">wedis</a> is up and running.</p>
+
+<p>We haven't kept the js dependencies in this repo, but I have a convenient
+makefile in frontend/ that will download them for you. Just run:</p>
+
+<pre><code>$ cd frontend
+$ make
+</code></pre>
+
+<p>Now, fire up your favorite browser and point it to the index.html in
+the frontend directory.</p>
+
+<p>You should see the dotplot of the % of dups for your data. Click any of the
+bams (dots) and detail metrics for that bam will show up. Repeat as necessary.</p>
+
+<h2>TODO</h2>
+
+<p>There is a lot of things that can be done from here. Feel free to send me
+pull requests with new features or just request them in the ticket system.
+Any type of feedback would be very welcome.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/drio">drio</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
