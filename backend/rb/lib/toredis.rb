@@ -1,12 +1,3 @@
-#!/usr/bin/env ruby
-#
-# load2redis.rb
-#
-# This tool will traverse the current directory looking for
-# csv files. When found, it would update redis with the contents.
-#
-# All deps (except redis) come with ruby
-#
 %w{find csv pp redis json ostruct}.each {|l| require l}
 
 # Dump into redis the data we just loaded, do it
@@ -24,7 +15,7 @@ module ToRedis
 
   def ToRedis.dump(hash_with_all_the_csvs)
     h    = hash_with_all_the_csvs
-    @all = {} # we'll keep here the stats for all the bams
+    @all = {}                               # stats for all the bams
     h.each do |levels, h_csvs|              # a directory
       h_csvs.each do |csv, a_data|          # csvs on that directory
         @dists = prepare_dist_struct        # hashes storing the dists per bam
@@ -92,25 +83,3 @@ module ToRedis
     {"type" => type, "data" => data}.to_json
   end
 end
-
-#
-# The data structure that holds the directory and csv data looks like:
-# h[levels][csv] = [ [HEADER], [line1], [line2], .... [lineN]]
-#
-def load_data(h, fpath)
-  dir    = File.dirname  fpath
-  f_name = File.basename fpath
-  levels = fpath.split('/')
-  levels.delete('.'); levels.pop
-  h[levels.join(">>")][f_name.gsub(/\.csv/, '')] = CSV.read fpath
-  h
-end
-
-# MAIN
-#
-$stderr.puts ">> Loading csvs ..."
-csvs = Hash.new {|h, k| h[k] = {}}
-Find.find(".") {|f| csvs = load_data csvs, f if f =~ /\.csv$/ }
-$stderr.puts ">> Dumping into redis ..."
-#dump_in_redis csvs
-ToRedis.dump csvs
