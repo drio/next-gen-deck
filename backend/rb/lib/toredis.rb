@@ -10,6 +10,69 @@
 # We will basically set key/vals where the vals are going to
 # have json data
 #
+class ToRedis
+  attr_reader :stats, :dists
+
+  def initialize(r)
+    @redis = r
+    @stats = Hash.new {|h,k| h[k] = {}}
+    @dists = Hash.new {|h,k| h[k] = {}}
+    @pers  = { "n_duplicate_reads" => "per_dups",
+               "n_reads_mapped"    => "per_mapped" }
+  end
+
+  def process_row(bam, type, row)
+    case type
+      when /stats/
+        @stats[bam][row[0]] = row[1]
+        @n_reads = row[1] if row[0] == "n_reads"
+        # percentage
+        if @pers.keys.include? row[0]
+          @stats[bam][@pers[row[0]]] = per @n_reads, row[1]
+        end
+      when /mapq\.r[1|2]|isize/
+        @dists[type][row[0]] = row[1]
+      else
+        raise RuntimeError, "I don't understand type"
+    end
+  end
+
+  def per(total, n)
+    ((100*n.to_f)/total.to_f).round(2)
+  end
+
+  # iterate over all the data
+  def each
+    Find.find(".") do |f|  # csv file
+      next unless f =~ /\.csv$/
+      level, type = to_id f
+      first_line = true
+      CSV.read(f).each do |a|
+        unless first_line
+          yield level, type, a
+        else
+          first_line = false
+        end
+      end
+    end
+  end
+
+  # fpath: full path to csv file
+  #
+  # returns the id of that file, which is the
+  # dir in fpath but changing the '/' to other character
+  def to_id(fpath)
+   dir        = File.dirname  fpath
+   f_name     = File.basename fpath
+   _tmp       = fpath.split('/')[1..-1]; _tmp.pop
+   level      = _tmp.join(">>")
+   type       = f_name.gsub(/\.csv/, '')
+   [level, type]
+  end
+end
+
+
+=begin
 module ToRedis
   REDIS = Redis.new
 
@@ -83,3 +146,4 @@ module ToRedis
     {"type" => type, "data" => data}.to_json
   end
 end
+=end

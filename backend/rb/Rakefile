@@ -1,13 +1,22 @@
-task :default => :test
+task :default => :test_unit
+files_to_watch = "lib/toredis.rb test/toredis_spec.rb test/test_toredis.rb test/fakecsvs.rb"
+includes = "-I./test -I./lib"
 
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test' << '.'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
+tunit_cmd = "ruby #{includes} test/test_toredis.rb"
+desc "test"
+task :test_unit do
+  sh tunit_cmd
+end
+
+desc "rspec"
+task :rspec do
+  rspec_cmd = "rspec #{includes} -c -fn test/toredis_spec.rb"
+  sh rspec_cmd
 end
 
 desc "Run watchr"
-task :watchr do
-  sh "watchr test/watch.rb"
+task :watch do
+  #cmd = "ruby ./test/watcher.rb '#{rspec_cmd}' #{files_to_watch}"
+  cmd = "ruby ./test/watcher.rb '#{tunit_cmd}' #{files_to_watch}"
+  sh cmd
 end
