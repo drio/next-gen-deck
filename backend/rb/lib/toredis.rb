@@ -1,17 +1,11 @@
 %w{find csv pp redis json ostruct}.each {|l| require l}
 
-# Dump into redis the data we just loaded, do it
-# in such a way that later we can query redis
-# via web and answer these type of questions:
-#
-# 1. The [ %_mapped || %_dups ] for all the bams
-# 2. All the isizes/amount pairs for a particular bam
-#
-# We will basically set key/vals where the vals are going to
-# have json data
+# Iterate over the csvs in the current dir and dump
+# the data into redis so we can retrieve it from the
+# client.
 #
 class ToRedis
-  attr_reader :stats, :dists
+  attr_reader :stats, :dists, :redis
 
   def initialize(r)
     @redis = r
@@ -19,8 +13,36 @@ class ToRedis
     @dists = Hash.new {|h,k| h[k] = {}}
     @pers  = { "n_duplicate_reads" => "per_dups",
                "n_reads_mapped"    => "per_mapped" }
+    @seeds_to_dist_name = { "is-"    => "isize.dist",
+                            "mq-r1-" => "r1.mapq.dist",
+                            "mq-r2-" => "r2.mapq.dist"}
   end
 
+  # Traverses all the dirs recursively, find csvs, extract
+  # the data and create key/values in redis
+  #
+  def run
+    prev_dir = nil
+    each do |dir, type, row|
+      if !prev_dir.nil? && dir != prev_dir # We have processed a dir
+        @seeds_to_dist_name.each {|k,v| @redis.set k + prev_dir, JSON(@dists[v]); }
+      end
+      prev_dir = dir
+      process_row dir, type, row
+    end
+    # Set the data for the remaining bam
+    @seeds_to_dist_name.each {|k,v| @redis.set k + prev_dir, JSON(@dists[v]) }
+    # We are done processing everything, set ALL the stats in redis
+    @redis.set "stats", JSON(@stats)
+  end
+
+  # Process 1 row from a csv. It will store the data in the row in
+  # the appropiate hash to be sent to redis later
+  #
+  # bam : the ID or dirpath to the csv file being processed
+  # type: the type of csv we are working on
+  # row : an array of the row
+  #
   def process_row(bam, type, row)
     case type
       when /stats/
@@ -30,10 +52,13 @@ class ToRedis
         if @pers.keys.include? row[0]
           @stats[bam][@pers[row[0]]] = per @n_reads, row[1]
         end
-      when /mapq\.r[1|2]|isize/
-        @dists[type][row[0]] = row[1]
+      when /isize/
+        @dists["isize.dist"][row[0]] = row[1]
+      when /r[1|2]\.mapq/
+        key = "rN.mapq.dist".gsub(/N/, type.match(/r([1|2])\.mapq/)[1])
+        @dists[key][row[0]] = row[1]
       else
-        raise RuntimeError, "I don't understand type"
+        raise RuntimeError, "I don't understand type: [#{type}]"
     end
   end
 
@@ -48,7 +73,8 @@ class ToRedis
       level, type = to_id f
       first_line = true
       CSV.read(f).each do |a|
-        unless first_line
+        # TODO: We are not using the header yet
+        unless first_line || type =~ /header/
           yield level, type, a
         else
           first_line = false

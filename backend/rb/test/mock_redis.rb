@@ -6,10 +6,10 @@ class MockRedis
   end
 
   def[](key)
-    @h[key]
+    JSON.parse @h[key] unless @h[key].nil?
   end
 
   def set(key, val)
-    @h[key] = JSON.parse
+    @h[key] = val
   end
 end

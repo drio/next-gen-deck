@@ -7,12 +7,9 @@
 #
 %w{find pp redis json ostruct}.each {|l| require l}
 $: << File.join(File.dirname(File.dirname($0)), "lib")
-%w{toredis loading}.each {|l| require l}
+%w{toredis}.each {|l| require l}
 
 # MAIN
 #
-$stderr.puts ">> Loading csvs ..."
-csvs = Loading.all_csvs
-$stderr.puts ">> Data for #{csvs.size} bam(s) loaded."
-$stderr.puts ">> Dumping into redis ..."
-ToRedis.dump csvs
+tr = ToRedis.new Redis.new
+tr.run

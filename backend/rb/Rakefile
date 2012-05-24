@@ -1,5 +1,5 @@
 task :default => :test_unit
-files_to_watch = "lib/toredis.rb test/toredis_spec.rb test/test_toredis.rb test/fakecsvs.rb"
+files_to_watch = "lib/toredis.rb test/toredis_spec.rb test/test_toredis.rb test/fakecsvs.rb test/mock_redis.rb"
 includes = "-I./test -I./lib"
 
 tunit_cmd = "ruby #{includes} test/test_toredis.rb"

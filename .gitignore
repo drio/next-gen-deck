@@ -1,1 +1,2 @@
-backend/rb/coverage/*
+backend/rb/coverage/.resultset.json
+backend/rb/coverage/index.html

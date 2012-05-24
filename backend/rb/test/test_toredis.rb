@@ -10,13 +10,10 @@ require 'mock_redis'
 
 class TestToRedis < Test::Unit::TestCase
   def setup
-    @r         = Redis.new
+    @r         = MockRedis.new
     @f         = FakeCSVS
-    @prjs      = {
-                   "prj1" => [ "bam11", "bam12" ],
-                   "prj2" => [ "bam21", "bam22" ]
-                 }
-    @csv_seeds = %w{stats isize.dist r1.mapq.dist r2.mapq.dist}
+    @prjs      = [ "prj1/bam11", "prj1/bam12", "prj2/bam21", "prj2/bam22" ]
+    @csv_seeds = %w{stats isize.dist r1.mapq.dist r2.mapq.dist header}
     @f.doit(@csv_seeds, @prjs)
     @h  = Hash.new {|h, k| h[k] = {}}
     @tr = ToRedis.new(@r)
@@ -30,7 +27,7 @@ class TestToRedis < Test::Unit::TestCase
   end
 
   must "properly iterate and yield the directory id" do
-    @tr.each {|dir, csv_type, row| assert @prjs.include? dir}
+    @tr.each {|dir, csv_type, row| assert @prjs.include? dir.gsub(/>>/, "/")}
   end
 
   must "properly iterate and yield the types" do
@@ -46,18 +43,25 @@ class TestToRedis < Test::Unit::TestCase
     @tr.process_row p, t, r
     assert @tr.stats[p][r[0]] == r[1]
 
-    p = "prj1"; t = "mapq.r1"; r = ["255", 10]
-    @tr.process_row p, t, r; assert @tr.dists[t][r[0]] == r[1]
-    t = "mapq.r2"
+    p = "prj1"; t = "r1.mapq.dist"; r = ["255", 10]
     @tr.process_row p, t, r; assert @tr.dists[t][r[0]] == r[1]
 
-    t = "isize"
+    t = "r2.mapq.dist"
+    @tr.process_row p, t, r; assert @tr.dists[t][r[0]] == r[1]
+
+    t = "isize.dist"
     @tr.process_row p, t, r; assert @tr.dists[t][r[0]] == r[1]
   end
 
   must "correct through an exception when it doesn't understand the type" do
     p = "prj1"; t = "XXXXXX"; r = ["255", 10]
     assert_raises(RuntimeError) { @tr.process_row p, t, r }
+  end
+
+  must "we do not use the name of the file when accessing the dist hash" do
+    p = "prj1"; t = "something.bla.isize.dist"; r = ["n_reads", 100]
+    @tr.process_row p, t, r
+    assert @tr.dists["isize.dist"][r[0]] == r[1]
   end
 
   must "correctly calculate percentages" do
@@ -76,6 +80,37 @@ class TestToRedis < Test::Unit::TestCase
     r = ["n_reads_mapped", 20]
     @tr.process_row p, t, r
     assert @tr.stats[p]["per_mapped"] == r[1]
+  end
+
+  must "when processing the whole dir, it sets the stats key in redis" do
+    @tr.run
+    assert_not_nil @tr.redis["stats"]
+  end
+
+  must "set in redis the distributions per each bam" do
+    @tr.run
+    @prjs.each do |dir|
+      id = dir.gsub(/\//, ">>")
+      %w{is- mq-r1- mq-r2-}.each do
+        h = @tr.redis["is-" + id]
+        assert_not_nil h
+        assert h.size == 2
+      end
+    end
+  end
+
+  must "the values for the _STATS_ key are correctly set in redis" do
+    @tr.run
+    @prjs.each do |dir|
+      h = @tr.redis["stats"][dir.gsub(/\//, ">>")]
+      assert_not_nil h
+
+      assert h["n_reads"]           == "10"
+      assert h["n_duplicate_reads"] == "1"
+      assert h["per_dups"].to_i     == 10
+      assert h["n_reads_mapped"]    == "8"
+      assert h["per_mapped"].to_i   == 80
+    end
   end
 end
 
