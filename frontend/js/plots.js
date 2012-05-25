@@ -91,7 +91,8 @@ var plots = (function() {
 
     var x_axis = d3.svg.axis()
                    .scale(x)
-                   .orient("bottom");
+                   .orient("bottom")
+                   .tickFormat(si_prefix);
 
     var y_axis = d3.svg.axis()
                    .scale(y)
