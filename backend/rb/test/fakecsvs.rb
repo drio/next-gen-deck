@@ -36,7 +36,7 @@ module FakeCSVS
         rows << "n_reads,10" << "n_read1,5" << "n_read2,5" <<
                 "n_duplicate_reads,1" << "n_reads_mapped,8"
       when /isize/
-        rows << "300,100" << "200,50"
+        rows << "300,100" << "200,50" << "100000, 1"
       when /header/
         rows << "RG,ID,0," << "RG,PL,Illumina," << "PG,PN,bwa,"
       else

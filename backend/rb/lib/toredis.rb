@@ -5,6 +5,7 @@
 # client.
 #
 class ToRedis
+  MAX_ISIZE = 1000 # see #reduce
   attr_reader :stats, :dists, :redis
 
   def initialize(r)
@@ -18,20 +19,38 @@ class ToRedis
                             "mq-r2-" => "r2.mapq.dist"}
   end
 
+  # We may have very long tails in the isize distributions
+  # cut that off so we can plot it nicely
+  def reduce(dist_name)
+    dist_name =~ /^is/ ?
+    @dists[dist_name].select {|k,v| k.to_i < MAX_ISIZE && k.to_i > -1} :
+    @dists[dist_name]
+  end
+
+  # p_dir: the name of the directory of the bam we are working on
+  def set_in_redis(prev_dir)
+    @seeds_to_dist_name.each do |seed, dist_name|
+      r_key_name = seed + prev_dir
+      @redis.set r_key_name, JSON({
+          "type" => seed,
+          "data" => reduce(dist_name)
+        })
+    end
+  end
+
   # Traverses all the dirs recursively, find csvs, extract
   # the data and create key/values in redis
   #
   def run
     prev_dir = nil
     each do |dir, type, row|
-      if !prev_dir.nil? && dir != prev_dir # We have processed a dir
-        @seeds_to_dist_name.each {|k,v| @redis.set k + prev_dir, JSON(@dists[v]); }
-      end
+       # We have processed a dir
+      set_in_redis(prev_dir) if !prev_dir.nil? && dir != prev_dir
       prev_dir = dir
       process_row dir, type, row
     end
     # Set the data for the remaining bam
-    @seeds_to_dist_name.each {|k,v| @redis.set k + prev_dir, JSON(@dists[v]) }
+    set_in_redis(prev_dir)
     # We are done processing everything, set ALL the stats in redis
     @redis.set "stats", JSON(@stats)
   end
@@ -53,10 +72,10 @@ class ToRedis
           @stats[bam][@pers[row[0]]] = per @n_reads, row[1]
         end
       when /isize/
-        @dists["isize.dist"][row[0]] = row[1]
+        @dists["isize.dist"][row[0]] = row[1].to_i
       when /r[1|2]\.mapq/
         key = "rN.mapq.dist".gsub(/N/, type.match(/r([1|2])\.mapq/)[1])
-        @dists[key][row[0]] = row[1]
+        @dists[key][row[0]] = row[1].to_i
       else
         raise RuntimeError, "I don't understand type: [#{type}]"
     end

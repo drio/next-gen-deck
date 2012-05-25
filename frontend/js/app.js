@@ -26,19 +26,19 @@ $(function(){
 
     // Plot the isize dotpot
     p_data = [];
-    _.each(d.sp_data.isize, function(val, key) { p_data.push([key, val]); });
+    _.each(d.sp_data["is-"], function(amount, isize) { p_data.push([isize, amount]) });
     $("#isize-plot").html("");
-    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:70});
+    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:60});
 
     // Finally read1/read2 barplots
     // TODO: DRY
     p_data = [];
-    _.each(d.sp_data["mq-r1"], function(val, key) { p_data.push(val); });
+    _.each(d.sp_data["mq-r1-"], function(amount, qual) { p_data.push(amount); });
     $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 950, 100);
     console.log("data for mapq-r1: " + p_data);
 
     p_data = [];
-    _.each(d.sp_data["mq-r2"], function(val, key) { p_data.push(val); });
+    _.each(d.sp_data["mq-r2-"], function(amount, qual) { p_data.push(amount); });
     $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 950, 100);
     console.log("data for mapq-r2: " + p_data);
 

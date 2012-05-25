@@ -91,10 +91,15 @@ class TestToRedis < Test::Unit::TestCase
     @tr.run
     @prjs.each do |dir|
       id = dir.gsub(/\//, ">>")
-      %w{is- mq-r1- mq-r2-}.each do
-        h = @tr.redis["is-" + id]
+      %w{is- mq-r1- mq-r2-}.each do |seed|
+        h = @tr.redis[seed + id]
         assert_not_nil h
-        assert h.size == 2
+        assert h.has_key? "type"
+        assert h.has_key? "data"
+        # We trim out bins for very high insert size values
+        assert h["data"].size == 2
+        # let's make sue the values are numbers not strings
+        h["data"].values.each {|v| assert v.class == Fixnum}
       end
     end
   end

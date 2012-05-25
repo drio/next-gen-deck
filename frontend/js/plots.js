@@ -84,6 +84,11 @@ var plots = (function() {
               .domain([0, d3.max(data, function(d) { return d[1];})])
               .range([h - padding, padding]);
 
+    console.log("--> range: " + (h - padding) + " / " + padding);
+    console.log("--> domain: " + 0 + " / " + d3.max(data, function(d) { return d[1];}) );
+    console.log(data);
+    console.log("-----------------");
+
     var x_axis = d3.svg.axis()
                    .scale(x)
                    .orient("bottom");
