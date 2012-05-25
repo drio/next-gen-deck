@@ -9,6 +9,9 @@ var plots = (function() {
     var humanize    = d3.format(",d"),
         all_numbers = /^\d+$/;
 
+    console.log("table data: ");
+    console.log(data);
+
     d3.select(sel)
         .append("table")
 
@@ -21,10 +24,11 @@ var plots = (function() {
         .data(function(d){ return d;})
         .enter()
         .append("td")
+        //.attr("class", "bold")
         .text(function(d) {
           var _d = all_numbers.test(d) ? humanize(d) : d;
           return _d;
-        })
+        });
   }
 
   /*
@@ -73,8 +77,9 @@ var plots = (function() {
    * cb_md can be a callback for the mousedown event
    */
   plots.dotplot = function(sel, data, w, h, extras) {
-    var padding = extras.padding,
-        radio   = extras.radio;
+    var padding   = extras.padding,
+        radio     = extras.radio,
+        si_prefix = d3.format(",s");
 
     var x = d3.scale.linear()
               .domain([0, d3.max(data, function(d) { return d[0];})])
@@ -84,18 +89,14 @@ var plots = (function() {
               .domain([0, d3.max(data, function(d) { return d[1];})])
               .range([h - padding, padding]);
 
-    console.log("--> range: " + (h - padding) + " / " + padding);
-    console.log("--> domain: " + 0 + " / " + d3.max(data, function(d) { return d[1];}) );
-    console.log(data);
-    console.log("-----------------");
-
     var x_axis = d3.svg.axis()
                    .scale(x)
                    .orient("bottom");
 
     var y_axis = d3.svg.axis()
                    .scale(y)
-                   .orient("left");
+                   .orient("left")
+                   .tickFormat(si_prefix);
 
     var svg = d3.select(sel)
                 .append("svg")
