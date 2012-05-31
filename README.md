@@ -98,7 +98,10 @@ want to run those in parallel. Most likely you have all these in a HPC cluster.
 Now we should have all the data extracted in csv format per each of the bams.
 
 It is time to load all that to the redis server. Make sure that you have redis
-up and running and then run the ruby tool:
+up and running. Also, make sure you have the
+[redis gem](http://rubygems.org/gems/redis) installed so ruby can talk to
+your redis server. Now we can run the ruby tool to populate the redis server
+with our dataset:
 
 ```bash
 $ cd bams_path
