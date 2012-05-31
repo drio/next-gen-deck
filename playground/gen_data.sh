@@ -2,6 +2,16 @@
 #
 set -e
 
+full_path()
+{
+  local BAM=$1
+  local b_dir=`dirname $BAM`
+  local fn=`basename $BAM`
+  local f_dir=`cd $b_dir; pwd`
+  BAM="$f_dir/$fn"
+  echo $BAM
+}
+
 usage()
 {
   local msg=$1
@@ -23,11 +33,7 @@ while getopts "b:n:p:h" opt
 do
   case $opt in
     b)
-      BAM=$OPTARG
-      b_dir=`dirname $BAM`
-      fn=`basename $BAM`
-      f_dir=`cd $b_dir; pwd`
-      BAM="$f_dir/$fn"
+      BAM=$(full_path $OPTARG)
       [ ".$BAM" == "." ] && usage "I need an input bam"
       ;;
     n)
@@ -51,13 +57,14 @@ done
 mkdir -p bams; cd bams
 ../../backend/rb/bin/simu_data $N_OF_PAIRS $BAM $NUM | bash
 
+stats_bin=$(full_path ../../backend/c/ngd-stats)
 for b in `find . -name "*.bam"`
 do
   dir=`dirname $b`
   fn=`basename $b`
   seed=${fn%.*}
   cd $dir
-  $HOME/dev/next-gen-deck/backend/c/ngd-stats $seed $fn
+  $stats_bin $seed $fn
   cd - >/dev/null
 done
 
