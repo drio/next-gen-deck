@@ -1,0 +1,59 @@
+#!/usr/bin/env ruby
+#
+# Given a SAM stream in stdin, skip the first "skip_reads" reads
+# and dump to stdout "n_of_pairs"
+#
+
+class Alignment
+  attr_reader :qname
+  def initialize(l)
+    @qname, @flags = l.split[0..1]
+  end
+  def read1?
+    (@flags.to_i & 0x64) != 0
+  end
+  def read2?
+    (@flags.to_i & 0x128) != 0
+  end
+end
+
+# Main
+#
+unless ARGV.size == 2
+  puts "Usage:"
+  puts "samtools view -h bam | #{File.basename $0} <n_of_pairs> <skip_first_n_reads> > sam"
+  exit 1
+end
+
+skip_reads = ARGV[1].to_i
+n_of_pairs = ARGV[0].to_i
+header     = ""
+np         = 0 # number of pairs we have processed
+ams        = Hash.new {|h,k| h[k] = {:r1 => nil, :r2 => nil}}
+n_reads    = 0
+first_aln  = true
+
+$stdin.each_line do |l|
+  if l =~ /^@/
+    header += l
+  else
+    if first_aln
+      puts header
+      first_aln = false
+    end
+    n_reads += 1
+    next unless n_reads >= skip_reads
+    a = Alignment.new l
+    ams[a.qname][:r1] = l if a.read1?
+    ams[a.qname][:r2] = l if a.read2?
+
+    if ams[a.qname][:r1] && ams[a.qname][:r2]
+      puts ams[a.qname][:r1]; puts ams[a.qname][:r2]
+      np+=2
+      exit 0 if np >= n_of_pairs
+    end
+  end
+end
+
+$stderr.puts "Not enough reads in stream to get to #{n_of_pairs} - #{np}"
+exit 1

@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+#
+# simulates bams so we can test the next-gen deck
+
+$: << File.join(File.dirname(File.dirname($0)), "lib")
+%w{simu_data}.each {|l| require l}
+
+def usage(msg)
+  $stderr.puts "ERROR: " + msg
+  puts "$ #{File.basename $0} <n_of_pairs_to_generate> <input_bam> <bams_to_generate> [-b]"
+  puts "-b: All the bams will be generated in the background. *careful*"
+  exit 1
+end
+
+n_of_pairs_to_generate, bam, n_of_bams_to_generate, brg = ARGV
+
+usage "Wrong number of arguments" unless ARGV.size > 2 && ARGV.size < 5
+usage "Can't find bam: #{bam}" unless File.exists? bam
+
+run_in_background = brg.nil? ? false : true
+simu = SimuData.new n_of_bams_to_generate,
+                    bam,
+                    n_of_pairs_to_generate,
+                    run_in_background
+puts simu.generate

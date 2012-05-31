@@ -8,6 +8,9 @@ require 'fakecsvs'
 require 'monkey_patch'
 require 'mock_redis'
 
+require 'simu_data'
+require 'test_simu_data'
+
 class TestToRedis < Test::Unit::TestCase
   def setup
     @r         = MockRedis.new

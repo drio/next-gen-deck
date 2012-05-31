@@ -1,2 +1,5 @@
 backend/rb/coverage/.resultset.json
 backend/rb/coverage/index.html
+backend/c/*.o
+backend/c/ngd-stats
+backend/c/utest
