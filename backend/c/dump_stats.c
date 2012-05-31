@@ -81,7 +81,7 @@ void dump_mapq(ngd_bam_flagstat_t *s, char *seed)
  * @RG     ID:0    PL:Illumina     PU:700821_20111116_D0GN3ACXX-5-ID09     LB:IWX_RMMYJR.18277-1_1pA       DT:2011-12-14T14:55:08-0600     SM:18277        CN:BCM
  * @PG     ID:bwa  PN:bwa  VN:0.5.9-r16*
  */
-static int header_records(char *rt, char *t, int p, char *t_text, int *i)
+int header_records(char *rt, char *t, int p, char *t_text, int *i)
 {
   int j;
 
