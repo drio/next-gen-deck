@@ -3,19 +3,28 @@
 # simulates bams so we can test the next-gen deck
 
 $: << File.join(File.dirname(File.dirname($0)), "lib")
-%w{simu_data}.each {|l| require l}
+%w{simu_data helpers}.each {|l| require l}
 
-def usage(msg)
-  $stderr.puts "ERROR: " + msg
-  puts "$ #{File.basename $0} <n_of_pairs_to_generate> <input_bam> <bams_to_generate> [-b]"
-  puts "-b: All the bams will be generated in the background. *careful*"
-  exit 1
-end
+_bn = File.basename $0 # tool's basename
+u_text =
+  [
+   "$ #{_bn} <n_of_pairs_to_generate> <input_bam> <bams_to_generate> [-b]",
+   "-b: All the bams will be generated in the background. *careful*"
+  ].join("\n")
+Helpers::Usage.set_text u_text
 
 n_of_pairs_to_generate, bam, n_of_bams_to_generate, brg = ARGV
 
-usage "Wrong number of arguments" unless ARGV.size > 2 && ARGV.size < 5
-usage "Can't find bam: #{bam}" unless File.exists? bam
+# Let's make sure everything is there
+Helpers::Usage.error "Wrong # of arguments" unless ARGV.size > 2 && ARGV.size < 5
+Helpers::Usage.error "Can't find bam: #{bam}" unless File.exists? bam
+
+Helpers.tools_available({ "samtools"=>"samtools"})
+
+picard_dir = ENV["PICARD"]
+unless picard_dir && File.exists?(picard_dir + "/SortSam.jar")
+  Helpers::Usage.error "the env var PICARD doesn't seem to be set."
+end
 
 run_in_background = brg.nil? ? false : true
 simu = SimuData.new n_of_bams_to_generate,
