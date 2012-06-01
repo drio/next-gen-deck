@@ -41,5 +41,12 @@ int main(int argc, char *argv[])
   free(s);
   bam_header_destroy(header);
   bam_close(fp);
+
+  /* Take care now of calculating x coverage */
+  int *a_cov;
+  a_cov = gather_xcoverage(argv[2]);
+  dump_xcov(a_cov, seed_name);
+  free(a_cov);
+
   return 0;
 }

@@ -145,3 +145,16 @@ void dump_header_data(char *text, int nc, char *seed)
   fclose(fp);
 }
 
+/* Dump the dist coverage data in a csv */
+void dump_xcov(int *a_cov, char *seed)
+{
+  FILE *fp;
+  char fname[100];
+  int i;
+
+  open_for_output(&fp, fname, seed, ".xcov.dist.csv");
+  fprintf(fp, "xcoverage,amount\n"); // header
+  for (i=0; i<MAX_XCOV; ++i)
+    fprintf(fp, "%d,%d\n", i, a_cov[i]);
+  fclose(fp);
+}

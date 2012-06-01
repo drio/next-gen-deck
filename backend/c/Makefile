@@ -5,7 +5,7 @@ INCLUDES=-I$(SAMTOOLS) -I.
 LIBPATH=-L$(SAMTOOLS) -lbam -lm -lz
 TOOL=ngd-stats
 WATCH_FILES=dump_stats.c flag_stat.c ngd-stats.c test-ngd-stats.c dump_stats.h flag_stat.h
-OBJS=flag_stat.o dump_stats.o
+OBJS=flag_stat.o dump_stats.o xcoverage.o
 
 all: ngd-stats
 
