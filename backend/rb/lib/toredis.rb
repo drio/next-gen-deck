@@ -16,7 +16,8 @@ class ToRedis
                "n_reads_mapped"    => "per_mapped" }
     @seeds_to_dist_name = { "is-"    => "isize.dist",
                             "mq-r1-" => "r1.mapq.dist",
-                            "mq-r2-" => "r2.mapq.dist"}
+                            "mq-r2-" => "r2.mapq.dist",
+                            "xcov-"  => "xcov.dist"}
   end
 
   # We may have very long tails in the isize distributions
@@ -76,6 +77,8 @@ class ToRedis
       when /r[1|2]\.mapq/
         key = "rN.mapq.dist".gsub(/N/, type.match(/r([1|2])\.mapq/)[1])
         @dists[key][row[0]] = row[1].to_i
+      when /xcov/
+        @dists["xcov.dist"][row[0]] = row[1].to_i
       else
         raise RuntimeError, "I don't understand type: [#{type}]"
     end

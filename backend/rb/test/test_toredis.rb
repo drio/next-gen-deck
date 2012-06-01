@@ -16,7 +16,7 @@ class TestToRedis < Test::Unit::TestCase
     @r         = MockRedis.new
     @f         = FakeCSVS
     @prjs      = [ "prj1/bam11", "prj1/bam12", "prj2/bam21", "prj2/bam22" ]
-    @csv_seeds = %w{stats isize.dist r1.mapq.dist r2.mapq.dist header}
+    @csv_seeds = %w{stats isize.dist r1.mapq.dist r2.mapq.dist header xcov.dist}
     @f.doit(@csv_seeds, @prjs)
     @h  = Hash.new {|h, k| h[k] = {}}
     @tr = ToRedis.new(@r)
@@ -38,7 +38,7 @@ class TestToRedis < Test::Unit::TestCase
   end
 
   must "It should not yield the csv headers" do
-    @tr.each {|dir, csv_type, row| assert_no_match /^key/, row[0]}
+    @tr.each {|dir, csv_type, row| assert_no_match /^key/, row[0] }
   end
 
   must "correctly sets a NON_SPECIAL key/pair when working on stats for a bam" do
@@ -94,7 +94,7 @@ class TestToRedis < Test::Unit::TestCase
     @tr.run
     @prjs.each do |dir|
       id = dir.gsub(/\//, ">>")
-      %w{is- mq-r1- mq-r2-}.each do |seed|
+      %w{is- mq-r1- mq-r2- xcov-}.each do |seed|
         h = @tr.redis[seed + id]
         assert_not_nil h
         assert h.has_key? "type"

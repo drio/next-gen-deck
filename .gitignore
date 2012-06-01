@@ -3,3 +3,9 @@ backend/rb/coverage/index.html
 backend/c/*.o
 backend/c/ngd-stats
 backend/c/utest
+frontend/.DS_Store
+frontend/js/deps/drd.d3.v2.min.js
+playground/.DS_Store
+playground/bams/
+playground/webdis.log
+playground/webdis/

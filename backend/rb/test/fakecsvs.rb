@@ -39,6 +39,8 @@ module FakeCSVS
         rows << "300,100" << "200,50" << "100000, 1"
       when /header/
         rows << "RG,ID,0," << "RG,PL,Illumina," << "PG,PN,bwa,"
+      when /xcov/
+        rows << "0,0" << "10,34"
       else
         raise "We shouldn't get here, I don't understand the TYPE"
     end
