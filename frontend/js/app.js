@@ -111,12 +111,14 @@ $(function(){
       radio: 4,
       cb_md: function(d, i) { pull_details(data, i); },
       // We want to highlight the dot in both plots, so d3 will callback
-      // when the user moves or leaves a dot.
+      // when the user hovers over a dot.
       cb_toggle: function(sel, i) {
-        var cc      = sel.style("fill"),
-            nc      = cc === "#ff0000" ? "black" : "red",
-            display = cc === "#ff0000" ? "none" : "block";
+        var cc      = sel.style("fill"), // current color
+            red     = cc === "#ff0000" || cc === "rgb(255, 0, 0)",
+            nc      = red ? "black" : "red",
+            display = red ? "none" : "block";
         _.each(["#main-plot-dups", "#main-plot-mapped"], function(s){
+          console.log(">> " + typeof cc + " | " + cc);
           d3.selectAll(s).selectAll("circle")[0][i].style.fill = nc;
         });
 
