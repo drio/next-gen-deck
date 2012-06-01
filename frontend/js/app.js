@@ -30,17 +30,22 @@ $(function(){
     $("#isize-plot").html("");
     plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:40});
 
+    // Plot the distribution of coverage
+    p_data = [];
+    _.each(d.sp_data["xcov-"], function(amount, xcov) { p_data.push([xcov, amount]) });
+    $("#xcov-plot").html("");
+    //console.log(p_data);
+    plots.dotplot("#xcov-plot", p_data, 550, 250, {radio:1, padding:40});
+
     // Finally read1/read2 barplots
     // TODO: DRY
     p_data = [];
     _.each(d.sp_data["mq-r1-"], function(amount, qual) { p_data.push(amount); });
     $("#mapq-plot-r1").html(""); plots.barplot("#mapq-plot-r1", p_data, 950, 100);
-    console.log("data for mapq-r1: " + p_data);
 
     p_data = [];
     _.each(d.sp_data["mq-r2-"], function(amount, qual) { p_data.push(amount); });
     $("#mapq-plot-r2").html(""); plots.barplot("#mapq-plot-r2", p_data, 950, 100);
-    console.log("data for mapq-r2: " + p_data);
 
     // Reveale the layer that contains the subplots
     d3.selectAll("#second-area").style("display", "block");
@@ -53,7 +58,7 @@ $(function(){
 
     // These are the prefixes for the redis keys.
     // TODO: this is very hardcoded.. refactor ..
-    var seeds   = ["is-", "mq-r1-", "mq-r2-"],
+    var seeds   = ["is-", "mq-r1-", "mq-r2-", "xcov-"],
         rd_keys = [], // Will hold the actual redis keys
         id      = d.a_ids[i]; // id name of the bam we are interested on
 
@@ -71,7 +76,7 @@ $(function(){
         // The json object returned has two attributes, one is the type and
         // the other is the actual data
         d.sp_data[o.type] = o.data;
-        if (d.sp_data.amount_collected === 3) // All ajax calls done
+        if (d.sp_data.amount_collected === seeds.length) // All ajax calls done
           plot_details(d, id);
       });
     });
