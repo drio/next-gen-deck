@@ -28,14 +28,18 @@ $(function(){
     p_data = [];
     _.each(d.sp_data["is-"], function(amount, isize) { p_data.push([isize, amount]) });
     $("#isize-plot").html("");
-    plots.dotplot("#isize-plot", p_data, 550, 250, {radio:1, padding:40});
+    plots.dotplot("#isize-plot", p_data, 550, 250, {
+      radio:1, padding:40, log_x:false
+    });
 
     // Plot the distribution of coverage
     p_data = [];
     _.each(d.sp_data["xcov-"], function(amount, xcov) { p_data.push([xcov, amount]) });
     $("#xcov-plot").html("");
     //console.log(p_data);
-    plots.dotplot("#xcov-plot", p_data, 550, 250, {radio:1, padding:40});
+    plots.dotplot("#xcov-plot", p_data, 550, 250, {
+      radio:2, padding:40, log_x:true
+    });
 
     // Finally read1/read2 barplots
     // TODO: DRY
@@ -118,7 +122,6 @@ $(function(){
             nc      = red ? "black" : "red",
             display = red ? "none" : "block";
         _.each(["#main-plot-dups", "#main-plot-mapped"], function(s){
-          console.log(">> " + typeof cc + " | " + cc);
           d3.selectAll(s).selectAll("circle")[0][i].style.fill = nc;
         });
 

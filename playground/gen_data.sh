@@ -54,9 +54,11 @@ done
 [ ! -f $BAM ] && usage "I cannot read the input bam: $BAM"
 [ ".$NUM" == "." ] && usage "How many bams do you want me to generate?"
 
+echo ">> Generating bams ..."
 mkdir -p bams; cd bams
 ../../backend/rb/bin/simu_data $N_OF_PAIRS $BAM $NUM | bash
 
+echo ">> Extracting metrics from bams ..."
 stats_bin=$(full_path ../../backend/c/ngd-stats)
 for b in `find . -name "*.bam"`
 do
@@ -68,4 +70,5 @@ do
   cd - >/dev/null
 done
 
+echo ">> Dumping into redis ..."
 ../../backend/rb/bin/load2redis

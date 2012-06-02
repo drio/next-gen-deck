@@ -9,9 +9,6 @@ var plots = (function() {
     var humanize    = d3.format(",d"),
         all_numbers = /^\d+$/;
 
-    console.log("table data: ");
-    console.log(data);
-
     d3.select(sel)
         .append("table")
 
@@ -81,8 +78,16 @@ var plots = (function() {
         radio     = extras.radio,
         si_prefix = d3.format(",s");
 
-    var x = d3.scale.linear()
-              .domain([0, d3.max(data, function(d) { return d[0];})])
+    /* No 0 if log scale, and domain starts in 1 */
+    var start_x = 0, x_scale_type = d3.scale.linear();
+    if (extras.log_x) {
+      data         = _.reject(data, function(num){ return num[0] < 1; });
+      start_x      = 1;
+      x_scale_type = d3.scale.log();
+    }
+
+    var x = x_scale_type
+              .domain([start_x, d3.max(data, function(d) { return d[0];})])
               .range([padding, w - padding * 2]);
 
     var y = d3.scale.linear()
