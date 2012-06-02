@@ -37,7 +37,7 @@ $(function(){
     _.each(d.sp_data["xcov-"], function(amount, xcov) { p_data.push([xcov, amount]) });
     $("#xcov-plot").html("");
     //console.log(p_data);
-    plots.dotplot("#xcov-plot", p_data, 550, 250, {
+    plots.dotplot("#xcov-plot", p_data, 950, 200, {
       radio:2, padding:40, log_x:true
     });
 
