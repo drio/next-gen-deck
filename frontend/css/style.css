@@ -96,6 +96,7 @@ b {
 .axis path,
 .axis line {
   fill: none;
+  stroke-width: 2;
   stroke: black;
   shape-rendering: crispEdges;
 }
